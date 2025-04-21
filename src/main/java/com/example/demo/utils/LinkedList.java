@@ -65,18 +65,17 @@ public class LinkedList<T>{
 
         if(head == null)
         {
-            this.head.setNext(node);
+            head = node;
             size++;
         }
         else
-        {    
-            Node<T> tempNode = this.head;
+        {
+            Node<T> tempNode = head;
             while(tempNode.getNext() != null)
             {
-                tempNode.setNext(tempNode.getNext().getNext());
+                tempNode = tempNode.getNext();
             }
             tempNode.setNext(node);
-            this.head = tempNode;
             size++;
         }
     }
@@ -91,13 +90,14 @@ public class LinkedList<T>{
     }
 
     public void clear()
-    { 
+    {
         this.head = null;
+        size = 0;
     }
 
     public T get(int index)
     {
-        Node<T> tempNode = this.head;
+        Node<T> tempNode = head;
         int currentIndex = 0;
         while(tempNode != null && currentIndex != index)
         {
@@ -114,13 +114,13 @@ public class LinkedList<T>{
     @Override
     public String toString()
     {
-        String data = (String) "";
-        Node<T> tempNode = this.head;
-        while(tempNode.getNext().getNext() != null)
+        StringBuilder data = new StringBuilder();
+        Node<T> tempNode = head;
+        while(tempNode != null)
         {
-            data = data + " -> " + tempNode.getData();
-            tempNode.setNext(tempNode.getNext());
+            data.append(" -> ").append(tempNode.getData());
+            tempNode = tempNode.getNext();
         }
-        return data;
+        return data.toString();
     }
 }

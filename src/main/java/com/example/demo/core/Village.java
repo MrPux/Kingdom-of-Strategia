@@ -3,7 +3,7 @@ package com.example.demo.core;
 public class Village {
     //Instance Variables
     private String name;
-    private int xCordinate, yCordinate;
+    private int xCoordinate, yCoordinate;
     private int id;
 
     //Constructor
@@ -14,12 +14,12 @@ public class Village {
      * @param xCordinate
      * @param yCordinate
      */
-    public Village(String name, int id, int xCordinate, int yCordinate)
+    public Village(String name, int id, int xCoordinate, int yCoordinate)
     {
         this.name = name;
         this.id = id;
-        this.xCordinate = xCordinate;
-        this.yCordinate = yCordinate;
+        this.xCoordinate = xCoordinate;
+        this.yCoordinate = yCoordinate;
     }
 
     // ----- Getters  ------
@@ -45,18 +45,18 @@ public class Village {
      * Returns the x cordinate location of the village
      * @return int X Cordinate
      */
-    public int getXCordinate()
+    public int getXCoordinate()
     {
-        return this.xCordinate;
+        return this.xCoordinate;
     }
 
     /**
      * Returns the y cordinate location of the village
      * @return int y cordinate
      */
-    public int getYCordinate()
+    public int getYCoordinate()
     {
-        return this.yCordinate;
+        return this.yCoordinate;
     }
 
     // ----- Setters  ------
@@ -80,17 +80,17 @@ public class Village {
     /**Sets the village x cordinate based on the given integer
      * @param int used for Village X Cordinate
      */
-    public void setXCordinate(int xCordinate)
+    public void setXCoordinate(int xCordinate)
     {
-        this.xCordinate = xCordinate;
+        this.xCoordinate = xCordinate;
     }
 
     /**
      * Sets the village y cordinate based on the given integer
      * @param int used for Village Y cordinate
      */
-    public void setYCordinate(int yCordinate)
+    public void setYCoordinate(int yCordinate)
     {
-        this.yCordinate = yCordinate;
+        this.yCoordinate = yCordinate;
     }
 }

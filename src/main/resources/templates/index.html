@@ -1,31 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Kingdom of Strategia</title>
-    <link rel="stylesheet" href="css/styles.css">
 
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: sans-serif; 
+        }
+
+        #container { 
+            display: flex;
+            flex-direction: row;
+            width: 100vw;
+            height: 100vh;
+            /* border:red; */
+        }
+
+        #map { 
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background-color: #e8e8e8;
+            border: red;
+            background-image:
+                linear-gradient(to right, #ccc 1px, transparent 1px),
+                linear-gradient(to bottom, #ccc 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        #sidebar {
+            width: 300px;
+            background-color: #009a7e;
+            padding: 15px;
+            overflow-y: auto;
+            color: white;
+            z-index: 1000;
+        }
+
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        img {
+            position: absolute;
+            z-index: 2;
+        }
+
+        h1 {
+            margin: 0;
+            padding: 10px;
+            background-color: #017060;
+            color: white;
+            text-align: center;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+    </style>
 </head>
-<body>
-    <h1 th:text="${message}"></h1>
 
-    <button onclick="sendClick()">Send Click</button>
+<body>
+    <h1>Kingdom of Strategia</h1>
+    <div id="container">
+
+        <!-- Game Map Section -->
+        <div id="map">
+            <svg id="game-lines">
+                <th:block th:each="road : ${roads}">
+                    <th:block th:if="${road != null and road.fromVillage != null and road.toVillage != null}">
+                        <text th:attr="x=${(road.fromVillage.xCoordinate + road.toVillage.xCoordinate) / 2},
+                                       y=${(road.fromVillage.yCoordinate + road.toVillage.yCoordinate) / 2 - 10}"
+                              font-size="12" fill="black"
+                              th:text="'W: ' + ${road.weight}">
+                        </text>
+                        <line th:attr="x1=${road.fromVillage.xCoordinate + 30},
+                                       y1=${road.fromVillage.yCoordinate + 30},
+                                       x2=${road.toVillage.xCoordinate + 30},
+                                       y2=${road.toVillage.yCoordinate + 30}"
+                              stroke="red" stroke-width="5"/>
+                    </th:block>
+                </th:block>
+            </svg>
+
+            <!-- Villages -->
+            <th:block th:each="village : ${villages}">
+                <img th:src="@{/assets/village1.png}"
+                     th:style="'left: ' + ${village.xCoordinate} + 'px; top: ' + ${village.yCoordinate} + 'px;'"
+                     width="60" height="60" />
+            </th:block>
+
+            <!-- Mountains -->
+            <th:block th:each="mountain : ${mountains}">
+                <img th:src="@{/assets/Mountain.webp}"
+                     th:style="'left: ' + ${mountain.xCoordinate} + 'px; top: ' + ${mountain.yCoordinate} + 'px;'"
+                     width="80" height="80"/>
+            </th:block>
+        </div>
+
+        <!-- Debug Info on the RIGHT -->
+        <div id="sidebar">
+            <h2>Debug Info</h2>
+            <ul>
+                <li th:each="road : ${roads}"
+                    th:text="'From (' + ${road.fromVillage.xCoordinate} + ', ' + ${road.fromVillage.yCoordinate} +
+                             ') To (' + ${road.toVillage.xCoordinate} + ', ' + ${road.toVillage.yCoordinate} +
+                             ') W: ' + ${road.weight}">
+                </li>
+            </ul>
+        </div>
+
+    </div>
 
     <script>
-        function sendClick() {
-            fetch('http://localhost:8080/click', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ action: 'clicked' })
-            })
-            .then(response => response.text())
-            .then(data => alert("Server says: " + data));
-        }
+        window.addEventListener('load', () => {
+            const map = document.getElementById('map');
+            const svg = document.getElementById('game-lines');
+            svg.setAttribute('width', map.offsetWidth);
+            svg.setAttribute('height', map.offsetHeight);
+        });
     </script>
-
-   
 </body>
 </html>

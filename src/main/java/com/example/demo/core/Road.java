@@ -34,7 +34,7 @@ public class Road {
      * Returns the Village where the road heads towards.
      * @return toVillage
      */
-    public Village getToVilalge()
+    public Village getToVillage()
     {
         return this.toVillage;
     }
