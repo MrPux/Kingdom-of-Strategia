@@ -1,3 +1,6 @@
+/**
+ * This class represents a village in the game.
+ */
 package com.example.demo.core;
 
 public class Village {
@@ -93,4 +96,18 @@ public class Village {
     {
         this.yCoordinate = yCordinate;
     }
+
+    @Override
+public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
+    Village village = (Village) obj;
+    return id == village.id;
+}
+
+@Override
+public int hashCode() {
+    return Integer.hashCode(id);
+}
+
 }

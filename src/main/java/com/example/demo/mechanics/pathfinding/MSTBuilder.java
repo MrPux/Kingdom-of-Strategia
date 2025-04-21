@@ -1,3 +1,6 @@
+/**
+ * This class builds the Minimum Spanning Tree (MST) for pathfinding.
+ */
 package com.example.demo.mechanics.pathfinding;
 
 import com.example.demo.core.Road;
@@ -25,7 +28,7 @@ public class MSTBuilder {
 
             if (find(parent, v1) != find(parent, v2)) {
                 mst.add(road);
-                union(parent, v1, v2);
+                union(parent, v1, v2); 
             }
         }
 
@@ -44,4 +47,6 @@ public class MSTBuilder {
         Village root2 = find(parent, v2);
         parent.put(root1, root2);
     }
+
+    
 }

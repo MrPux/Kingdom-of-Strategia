@@ -1,3 +1,6 @@
+/**
+ * This class represents a road in the game.
+ */
 package com.example.demo.core;
 
 public class Road {
@@ -47,4 +50,20 @@ public class Road {
     {
         return this.weight;
     }
+
+   
+    @Override
+public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
+    Road other = (Road) obj;
+    return (fromVillage.equals(other.fromVillage) && toVillage.equals(other.toVillage)) ||
+           (fromVillage.equals(other.toVillage) && toVillage.equals(other.fromVillage)); // undirected
+}
+
+@Override
+public int hashCode() {
+    return fromVillage.hashCode() + toVillage.hashCode(); // order doesn't matter
+}
+
 }

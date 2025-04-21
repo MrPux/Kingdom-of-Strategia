@@ -1,3 +1,6 @@
+/**
+ * This class implements a linked list.
+ */
 package com.example.demo.utils;
 
 public class LinkedList<T>{

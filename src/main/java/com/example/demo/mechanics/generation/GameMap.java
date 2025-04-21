@@ -1,3 +1,6 @@
+/**
+ * This class represents the game map.
+ */
 package com.example.demo.mechanics.generation;
 import com.example.demo.core.Mountain;
 import com.example.demo.core.Road;
