@@ -9,6 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * As the ClickController, I handle the '/click' endpoint to process actions sent from the frontend.
+ */
 @RestController
 public class ClickController {
 
@@ -20,6 +27,9 @@ public class ClickController {
      */
     @PostMapping("/click")
     public String handleClick(@RequestBody Map<String, String> body) {
+        /**
+         * The action performed by the user, sent from the frontend.
+         */
         String action = body.get("action");
         System.out.println("Frontend sent: " + action);
         return "Got it! You " + action;

@@ -10,20 +10,41 @@ import com.example.demo.classes.Road;
 import com.example.demo.classes.Village;
 import com.example.demo.classes.Enemy;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.example.demo.classes.Mountain;
+import com.example.demo.classes.Road;
+import com.example.demo.classes.Village;
+import com.example.demo.classes.Enemy;
+
+/**
+ * This class represents the game map.
+ */
 public class GameMap {
-    
-    //Instance Variables
+
+    /**
+     * A list of mountains on the map.
+     */
     private List<Mountain> mountains;
+    /**
+     * A list of villages on the map.
+     */
     private List<Village> villages;
+    /**
+     * A list of roads on the map.
+     */
     private List<Road> roads;
+    /**
+     * A list of enemies on the map.
+     */
     private List<Enemy> enemies;
 
     //Constructor
     /**
      * Initializes the instance variables of this MapGenerator Object
      */
-    public GameMap()
-    {
+    public GameMap() {
         this.villages = new ArrayList<>();
         this.roads = new ArrayList<>();
         this.mountains = new ArrayList<>();
@@ -33,17 +54,18 @@ public class GameMap {
     //--------- Getters --------
 
     /**
-     *Returns a List of Mounatians from Map.
+     * Returns a List of Mounatians from Map.
      * @return mountains
      */
-    public List<Mountain> getMountains(){return this.mountains;}
+    public List<Mountain> getMountains() {
+        return this.mountains;
+    }
 
     /**
      * Returns a List of villages from the Map.
      * @return List<Village>
      */
-    public List<Village> getVillages()
-    {
+    public List<Village> getVillages() {
         return this.villages;
     }
 
@@ -51,8 +73,7 @@ public class GameMap {
      * Returns a List of Roads from the Map.
      * @return List<Road>
      */
-    public List<Road> getRoads()
-    {
+    public List<Road> getRoads() {
         return this.roads;
     }
 
@@ -60,8 +81,7 @@ public class GameMap {
      * Returns a List of enemies on map
      * @param enemies
      */
-    public List<Enemy> getEnemies()
-    {
+    public List<Enemy> getEnemies() {
         return this.enemies;
     }
 
@@ -70,8 +90,7 @@ public class GameMap {
      * Adds a village Object to our List Structure.
      * @param Village
      */
-    public void addVillage(Village newVillage)
-    {
+    public void addVillage(Village newVillage) {
         this.villages.add(newVillage);
     }
 
@@ -79,37 +98,32 @@ public class GameMap {
      * Adds a Road Object to a List Structure.
      * @param road
      */
-    public void addRoad(Road newRoad)
-    {
+    public void addRoad(Road newRoad) {
         this.roads.add(newRoad);
     }
 
     /**
      * Adds Mountain Objects to mountains List Structure.
      */
-    public void addMountain(Mountain m)
-    {
+    public void addMountain(Mountain m) {
         this.mountains.add(m);
     }
 
     /**
      * Adds Enemy Objects to the enemies List Structure.
      */
-    public void addEnemy(Enemy e)
-    {
+    public void addEnemy(Enemy e) {
         this.enemies.add(e);
     }
 
     /**
      * Clears the map off Villages and Roads.
      */
-    public void clearMap()
-    {
+    public void clearMap() {
         villages.clear();
         roads.clear();
         mountains.clear();
     }
- 
 
 
 }

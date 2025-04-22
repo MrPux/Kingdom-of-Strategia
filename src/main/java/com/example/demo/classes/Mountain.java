@@ -3,32 +3,53 @@
  */
 package com.example.demo.classes;
 
-public class Mountain
-{
+public class Mountain {
+    /**
+     * The x-coordinate of the mountain.
+     */
     private int xCoordinate;
+    /**
+     * The y-coordinate of the mountain.
+     */
     private int yCoordinate;
+    /**
+     * The sprite of the mountain.
+     */
+    private String sprite;
 
     /**
-     * I am the constructor for creating a Mountain object. I take the x and y coordinates as input
+     * am the constructor for creating a Mountain object. I take the x and y coordinates as input
      * to define my position in the game world.
      * @param xCoordinate The x coordinate of the mountain.
      * @param yCoordinate The y coordinate of the mountain.
      */
-    public Mountain(int xCoordinate, int yCoordinate)
-    {
+    public Mountain(int xCoordinate, int yCoordinate, String sprite) {
         this.xCoordinate = xCoordinate;
         this.yCoordinate = yCoordinate;
+        this.sprite = sprite;
     }
 
     /**
-     * I return my x coordinate.
+     * eturn my x coordinate.
      * @return The x coordinate of the mountain.
      */
-    public int getXCoordinate(){return this.xCoordinate;}
-    
+    public int getXCoordinate() {
+        return this.xCoordinate;
+    }
+
     /**
-     * I return my y coordinate.
+     * return my y coordinate.
      * @return The y coordinate of the mountain.
      */
-    public int getYCoordinate(){return this.yCoordinate;}
+    public int getYCoordinate() {
+        return this.yCoordinate;
+    }
+
+    /**
+     * Returns the assigned sprite png of the mountain.
+     * @return mountain
+     */
+    public String getSprite() {
+        return this.sprite;
+    }
 }

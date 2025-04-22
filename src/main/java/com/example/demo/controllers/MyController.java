@@ -7,8 +7,15 @@ import com.example.demo.mechanics.generation.GameMap;
 import com.example.demo.mechanics.generation.MapGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import com.example.demo.mechanics.generation.GameMap;
+import com.example.demo.mechanics.generation.MapGenerator;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+/**
+ * This controller handles requests and prepares data for the view.
+ */
 @Controller
 public class MyController {
 
@@ -20,6 +27,9 @@ public class MyController {
      */
     @GetMapping("/hello")
     public String showMap(Model model) {
+        /**
+         * The generated game map.
+         */
         GameMap gameMap = MapGenerator.generateMap();
         model.addAttribute("villages", gameMap.getVillages());
         model.addAttribute("roads", gameMap.getRoads());
@@ -28,5 +38,5 @@ public class MyController {
         model.addAttribute("enemies", gameMap.getEnemies());
         return "index"; // Template name
     }
-    
+
 }

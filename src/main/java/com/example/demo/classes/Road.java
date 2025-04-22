@@ -4,20 +4,27 @@
 package com.example.demo.classes;
 
 public class Road {
-    // Instance Variables
+    /**
+     * The village where the road originates.
+     */
     private Village fromVillage;
+    /**
+     * The village where the road leads to.
+     */
     private Village toVillage;
+    /**
+     * The weight or cost of traversing the road.
+     */
     private int weight;
 
     // Constructor
     /**
      * The Construction of this Road object requires the following variables for initalazing its instance variables.
-     * @param from
-     * @param to
-     * @param weight
+     * @param fromVillage The village where the road originates.
+     * @param toVillage The village where the road leads to.
+     * @param weight The weight or cost of traversing the road.
      */
-    public Road(Village fromVillage, Village toVillage, int weight)
-    {
+    public Road(Village fromVillage, Village toVillage, int weight) {
         this.fromVillage = fromVillage;
         this.toVillage = toVillage;
         this.weight = weight;
@@ -26,10 +33,9 @@ public class Road {
     // Getters
     /**
      * Returns the Village where the road comes from.
-     * @return Village 
+     * @return Village
      */
-    public Village getFromVillage()
-    {
+    public Village getFromVillage() {
         return this.fromVillage;
     }
 
@@ -37,8 +43,7 @@ public class Road {
      * Returns the Village where the road heads towards.
      * @return toVillage
      */
-    public Village getToVillage()
-    {
+    public Village getToVillage() {
         return this.toVillage;
     }
 
@@ -46,24 +51,23 @@ public class Road {
      * Returns the weight of the road that are very important when traversing.
      * @return weight
      */
-    public int getWeight()
-    {
+    public int getWeight() {
         return this.weight;
     }
 
-   
-    @Override
-public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null || getClass() != obj.getClass()) return false;
-    Road other = (Road) obj;
-    return (fromVillage.equals(other.fromVillage) && toVillage.equals(other.toVillage)) ||
-           (fromVillage.equals(other.toVillage) && toVillage.equals(other.fromVillage)); // undirected
-}
 
-@Override
-public int hashCode() {
-    return fromVillage.hashCode() + toVillage.hashCode(); // order doesn't matter
-}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Road other = (Road) obj;
+        return (fromVillage.equals(other.fromVillage) && toVillage.equals(other.toVillage)) ||
+                (fromVillage.equals(other.toVillage) && toVillage.equals(other.fromVillage)); // undirected
+    }
+
+    @Override
+    public int hashCode() {
+        return fromVillage.hashCode() + toVillage.hashCode(); // order doesn't matter
+    }
 
 }
