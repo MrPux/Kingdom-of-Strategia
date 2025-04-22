@@ -1,20 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kingdom of Strategia</title>
 
     <style>
-        html, body { 
+        header h1 {
+            position: absolute;
+            width: 100%;
+            margin: 0;
+            padding: 10px;
+            /* background-color: #017060; */
+            background-color: black;
+            color: white;
+            text-align: center;
+            z-index: 1;
+        }
+
+        html,
+        body {
             width: 100%;
             padding: 0;
             height: 100%;
             overflow: hidden;
-            font-family: sans-serif; 
+            font-family: sans-serif;
         }
 
-        #container {  
+        #container {
             display: flex;
             flex-direction: row;
             width: 100vw;
@@ -22,9 +36,10 @@
             /* border:red; */
         }
 
-        #map {   
+        #map { 
             flex: 1;
             position: relative;
+            margin-top: 48px;
             overflow: hidden;
             background-color: #e8e8e8;
             border: red;
@@ -57,24 +72,19 @@
             z-index: 2;
         }
 
-        h1 {
-            margin: 0;
-            padding: 10px;
-            /* background-color: #017060; */
-            background-color: black;
-            color: white;
-            text-align: center;
-        }
-
         ul {
             padding-left: 20px;
         }
- 
     </style>
 </head>
 
+<header>
+    <nav>
+        <h1>Kingdom of Strategia</h1>
+    </nav>
+</header>
+
 <body>
-    <h1>Kingdom of Strategia</h1>
     <div id="container">
 
         <!-- Game Map Section -->
@@ -84,46 +94,59 @@
                     <th:block th:if="${road != null and road.fromVillage != null and road.toVillage != null}">
                         <text th:attr="x=${(road.fromVillage.xCoordinate + road.toVillage.xCoordinate) / 2},
                                        y=${(road.fromVillage.yCoordinate + road.toVillage.yCoordinate) / 2 - 10}"
-                              font-size="12" fill="black"
-                              th:text="'W: ' + ${road.weight}">
+                            font-size="12" fill="black" th:text="'W: ' + ${road.weight}">
                         </text>
                         <line th:attr="x1=${road.fromVillage.xCoordinate + 30},
                                        y1=${road.fromVillage.yCoordinate + 30},
                                        x2=${road.toVillage.xCoordinate + 30},
-                                       y2=${road.toVillage.yCoordinate + 30}"
-                              stroke="red" stroke-width="5"/>
+                                       y2=${road.toVillage.yCoordinate + 30}" stroke="red" stroke-width="5" />
                     </th:block>
                 </th:block>
+
+
+                <!-- Mountains -->
+                <th:block th:each="mountain : ${mountains}">
+                    <img th:src="@{/assets/Mountain.webp}"
+                        th:style="'left: ' + ${mountain.XCoordinate} + 'px; top: ' + ${mountain.YCoordinate} + 'px;'"
+                        width="80" height="80" />
+                </th:block>
+
+                <!-- Villages -->
+                <th:block th:each="village : ${villages}">
+                    <img th:src="@{/assets/village1.png}"
+                        th:style="'left: ' + ${village.XCoordinate} + 'px; top: ' + ${village.YCoordinate} + 'px;'"
+                        width="60" height="80" />
+                </th:block>
+
+                <!-- enemies -->
+                <th:block th:each="enemy : ${enemies}">
+                    <th:block th:if="${road != null and road.fromVillage != null and road.toVillage != null}">
+                        <th:block th:if="${T(java.lang.Math).random() < 0.3}"> <!-- Adjust the probability as needed -->
+                            <img th:src="@{/assets/enemy-lvl-1.png}"
+                                th:style="'left: ' + ${((road.fromVillage.xCoordinate + road.toVillage.xCoordinate) / 2)} + 'px; top: ' + ${((road.fromVillage.yCoordinate + road.toVillage.yCoordinate) / 2)} + 'px;'"
+                                width="30" height="30" />
+                        </th:block>
+                    </th:block>
+                </th:block>
+
             </svg>
-            
 
-            <!-- Villages -->
-            <th:block th:each="village : ${villages}">
-                <img th:src="@{/assets/village1.png}"
-                     th:style="'left: ' + ${village.xCoordinate} + 'px; top: ' + ${village.yCoordinate} + 'px;'"
-                     width="60" height="60" />
-            </th:block>
 
-            <!-- Mountains -->
-            <th:block th:each="mountain : ${mountains}">
-                <img th:src="@{/assets/Mountain.webp}"
-                     th:style="'left: ' + ${mountain.xCoordinate} + 'px; top: ' + ${mountain.yCoordinate} + 'px;'"
-                     width="80" height="80"/>
-            </th:block>
+
         </div>
 
         <!-- Debug Info on the RIGHT -->
         <div id="sidebar">
             <h2>Table Info</h2>
+            <h5>Double Click to ZOOM IN or zoom out</h5>
+            <h2>Table Info</h2>
             <ul>
-                <li th:each="road : ${roads}"
-                    th:text="'From (' + ${road.fromVillage.xCoordinate} + ', ' + ${road.fromVillage.yCoordinate} +
-                             ') To (' + ${road.toVillage.xCoordinate} + ', ' + ${road.toVillage.yCoordinate} +
-                             ') W: ' + ${road.weight}">
+                <li th:each="road : ${roads}" th:text="'From (' + ${road.fromVillage.XCoordinate} + ', ' + ${road.fromVillage.YCoordinate} +
+                                ') To (' + ${road.toVillage.XCoordinate} + ', ' + ${road.toVillage.YCoordinate} +
+                                ') W: ' + ${road.weight}">
                 </li>
             </ul>
         </div>
-
     </div>
 
     <script>
@@ -132,7 +155,28 @@
             const svg = document.getElementById('game-lines');
             svg.setAttribute('width', map.offsetWidth);
             svg.setAttribute('height', map.offsetHeight);
+
+            let zoomedIn = false;
+            // Add double-click event listener to the map
+            map.addEventListener('dblclick', (e) => {
+                // Get mouse position
+                const x = e.clientX - map.offsetLeft;
+                const y = e.clientY - map.offsetTop;
+
+                // Toggle zoom state
+                zoomedIn = !zoomedIn;
+
+                // Apply zoom and adjust position
+                if (zoomedIn) {
+                    map.style.transformOrigin = `${x}px ${y}px`;
+                    map.style.transform = 'scale(4)';
+                } else {
+                    map.style.transformOrigin = 'top left';
+                    map.style.transform = 'scale(1)';
+                }
+            });
         });
     </script>
 </body>
+
 </html>

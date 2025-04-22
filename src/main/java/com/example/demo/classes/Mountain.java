@@ -1,7 +1,7 @@
 /**
  * As a Mountain, I represent a geographical feature within the game world.
  */
-package com.example.demo.core;
+package com.example.demo.classes;
 
 public class Mountain
 {

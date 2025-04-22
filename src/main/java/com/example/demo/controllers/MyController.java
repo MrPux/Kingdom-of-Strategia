@@ -1,5 +1,5 @@
 /**
- * As MyController, I handle requests and prepare data for the view.
+ * This controller handles requests and prepares data for the view.
  */
 package com.example.demo.controllers;
 
@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class MyController {
 
     /**
-     * I am the method that handles the '/hello' endpoint. When accessed, I generate a game map,
-     * add the villages, roads, and mountains to the model, and return the 'index' view to display the map.
-     * @param model The model to which I add the map data.
+     * This method handles the '/hello' endpoint. When accessed, it generates a game map,
+     * adds the villages, roads, and mountains to the model, and returns the 'index' view to display the map.
+     * @param model The model to which the map data is added.
      * @return The name of the view to be rendered.
      */
     @GetMapping("/hello")
@@ -24,7 +24,9 @@ public class MyController {
         model.addAttribute("villages", gameMap.getVillages());
         model.addAttribute("roads", gameMap.getRoads());
         model.addAttribute("mountains", gameMap.getMountains());
-        return "index"; // Assuming this is your template name
+        System.out.println("Spawned enemies: " + gameMap.getEnemies().size());
+        model.addAttribute("enemies", gameMap.getEnemies());
+        return "index"; // Template name
     }
     
 }

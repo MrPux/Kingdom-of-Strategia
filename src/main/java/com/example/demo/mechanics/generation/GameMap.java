@@ -2,19 +2,21 @@
  * This class represents the game map.
  */
 package com.example.demo.mechanics.generation;
-import com.example.demo.core.Mountain;
-import com.example.demo.core.Road;
-import com.example.demo.core.Village;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.example.demo.classes.Mountain;
+import com.example.demo.classes.Road;
+import com.example.demo.classes.Village;
+import com.example.demo.classes.Enemy;
 
 public class GameMap {
     
     //Instance Variables
+    private List<Mountain> mountains;
     private List<Village> villages;
     private List<Road> roads;
-    private List<Mountain> mountains;
+    private List<Enemy> enemies;
 
     //Constructor
     /**
@@ -25,9 +27,17 @@ public class GameMap {
         this.villages = new ArrayList<>();
         this.roads = new ArrayList<>();
         this.mountains = new ArrayList<>();
+        this.enemies = new ArrayList<>();
     }
 
     //--------- Getters --------
+
+    /**
+     *Returns a List of Mounatians from Map.
+     * @return mountains
+     */
+    public List<Mountain> getMountains(){return this.mountains;}
+
     /**
      * Returns a List of villages from the Map.
      * @return List<Village>
@@ -47,10 +57,13 @@ public class GameMap {
     }
 
     /**
-     *Returns a List of Mounatians from Map.
-     * @return mountains
+     * Returns a List of enemies on map
+     * @param enemies
      */
-    public List<Mountain> getMountains(){return this.mountains;}
+    public List<Enemy> getEnemies()
+    {
+        return this.enemies;
+    }
 
     //-------- Setters ------------
     /**
@@ -72,13 +85,20 @@ public class GameMap {
     }
 
     /**
-     * Adds Mountain Objects to List 
+     * Adds Mountain Objects to mountains List Structure.
      */
     public void addMountain(Mountain m)
     {
         this.mountains.add(m);
     }
 
+    /**
+     * Adds Enemy Objects to the enemies List Structure.
+     */
+    public void addEnemy(Enemy e)
+    {
+        this.enemies.add(e);
+    }
 
     /**
      * Clears the map off Villages and Roads.
@@ -89,6 +109,7 @@ public class GameMap {
         roads.clear();
         mountains.clear();
     }
+ 
 
 
 }

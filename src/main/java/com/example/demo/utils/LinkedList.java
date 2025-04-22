@@ -4,7 +4,7 @@
 package com.example.demo.utils;
 
 public class LinkedList<T>{
-    //LinkedList Intance variable
+    // LinkedList Instance variable
     private Node<T> head;
     private int size = 0;
 

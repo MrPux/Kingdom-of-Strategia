@@ -1,20 +1,20 @@
 /**
  * This class represents a village in the game.
  */
-package com.example.demo.core;
+package com.example.demo.classes;
 
 public class Village {
-    //Instance Variables
+    // Instance Variables
     private String name;
     private int xCoordinate, yCoordinate;
     private int id;
 
-    //Constructor
+    // Constructor
     /**
      * Constructs the Village Object based on the following required variablees for initialization of Villagee instance variables.
      * @param name
      * @param id
-     * @param xCordinate
+     * @param xCordinate  
      * @param yCordinate
      */
     public Village(String name, int id, int xCoordinate, int yCoordinate)
@@ -25,7 +25,7 @@ public class Village {
         this.yCoordinate = yCoordinate;
     }
 
-    // ----- Getters  ------
+    // Getters
     /**
      * Returns the name of the village as a String.
      * @return String Village name.
@@ -62,7 +62,7 @@ public class Village {
         return this.yCoordinate;
     }
 
-    // ----- Setters  ------
+    // Setters
 
     /**Sets the village name to the given String 
      * @param String used as village name

@@ -1,15 +1,15 @@
 /**
  * This class represents a road in the game.
  */
-package com.example.demo.core;
+package com.example.demo.classes;
 
 public class Road {
-    //Instance Variables
+    // Instance Variables
     private Village fromVillage;
     private Village toVillage;
     private int weight;
 
-    //Constructor
+    // Constructor
     /**
      * The Construction of this Road object requires the following variables for initalazing its instance variables.
      * @param from
@@ -23,7 +23,7 @@ public class Road {
         this.weight = weight;
     }
 
-    // -------- Getters --------
+    // Getters
     /**
      * Returns the Village where the road comes from.
      * @return Village 

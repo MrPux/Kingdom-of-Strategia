@@ -3,10 +3,10 @@
  */
 package com.example.demo.mechanics.pathfinding;
 
-import com.example.demo.core.Road;
-import com.example.demo.core.Village;
-
 import java.util.*;
+
+import com.example.demo.classes.Road;
+import com.example.demo.classes.Village;
 
 public class MSTBuilder {
 
