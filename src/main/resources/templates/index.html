@@ -28,7 +28,7 @@
             width: 100%;
             padding: 0;
             height: 100%;
-            overflow: auto;
+            overflow: hidden;
             font-family: sans-serif;
         }
 
@@ -41,7 +41,7 @@
 
         #map-wrapper {
             flex: 1;
-            overflow: scroll;
+            overflow: hidden;
             position: relative;
         }
 
@@ -57,7 +57,7 @@
             transition: transform 0.9s ease;
         }
 
-         #spyglass-overlay {
+        #spyglass-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -100,8 +100,6 @@
         }
 
         /* Binocular overlay */
-
-
     </style>
 </head>
 
@@ -117,6 +115,48 @@
 
         <div id="map-wrapper">
             <div id="map">
+
+                <button id="village-action-btn" style="
+                    position: absolute;
+                    z-index: 10;
+                    display: none;
+                    padding: 5px 10px;
+                    background-color: rgba(0, 102, 110, 0.517);
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                ">
+                    Visit
+                </button>
+
+                <div id="village-tooltip" style="
+                    position: absolute;
+                    display: none;
+                    padding: 8px 12px;
+                    background-color: #444;
+                    color: white;
+                    font-size: 14px;
+                    border-radius: 5px;
+                    z-index: 9;
+                    white-space: nowrap;
+                    transform: translate(-50%, -100%);
+">
+                    <span id="tooltip-text">Village</span>
+                    <div style="
+                        position: absolute;
+                        bottom: -8px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        width: 0;
+                        height: 0;
+                        border-left: 8px solid transparent;
+                        border-right: 8px solid transparent;
+                        border-top: 8px solid #444;
+                    "></div>
+                </div>
+
+
                 <svg id="game-lines">
                     <th:block th:each="road : ${roads}">
                         <th:block th:if="${road != null and road.fromVillage != null and road.toVillage != null}">
@@ -140,7 +180,7 @@
 
                 <!-- Villages -->
                 <th:block th:each="village : ${villages}">
-                    <img th:src="@{${village.sprite}}"
+                    <img class="village-img" th:src="@{${village.sprite}}"
                         th:style="'left: ' + ${village.XCoordinate} + 'px; top: ' + ${village.YCoordinate} + 'px;'"
                         width="60" height="50" />
                 </th:block>
@@ -155,7 +195,8 @@
                         </th:block>
                     </th:block>
                 </th:block>
-                 <img id="spyglass-overlay" src="/assets/spyglass.png" alt="Spyglass View" style="width: 100%; height: 100%;" />
+                <img id="spyglass-overlay" src="/assets/spyglass.png" alt="Spyglass View"
+                    style="width: 100%; height: 100%;" />
             </div>
         </div>
 
@@ -172,10 +213,78 @@
             </ul>
         </div>
     </div>
- 
+
 
     <script>
         window.addEventListener('load', () => {
+
+      
+            const button = document.getElementById("village-action-btn");
+            const villageImgs = document.querySelectorAll(".village-img");
+            const tooltip = document.getElementById("village-tooltip");
+            const tooltipText = document.getElementById("tooltip-text");
+
+
+            button.addEventListener("mouseenter", () => {
+                button.style.backgroundColor = "rgba(0, 102, 110, 0.517)"; // original color
+                button.style.color = "white";
+            });
+
+            button.addEventListener("mouseleave", () => {
+                button.style.backgroundColor = "rgba(66, 66, 66, 0.517)";
+                button.style.color = "white";
+                button.style.display = "none";
+            });
+
+            villageImgs.forEach(img => {
+                img.addEventListener("mouseenter", (e) => {
+                    const rect = img.getBoundingClientRect();
+                    const mapRect = map.getBoundingClientRect();
+
+                    const left = rect.left - mapRect.left + img.offsetWidth / 2;
+                    const top = rect.top - mapRect.top - 10;
+
+                    const btnLeft = left - 25;
+                    const btnTop = top + img.offsetHeight + 10; // 👈 new: below the village
+
+                    // Tooltip logic
+                    const src = img.getAttribute("src");
+                    const fileName = src.split("/").pop().replace(".png", "");
+                    const formatted = fileName.replace(/[-_]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+                    tooltipText.textContent = formatted;
+                    tooltip.style.left = `${left}px`;
+                    tooltip.style.top = `${top}px`;
+                    tooltip.style.display = "block";
+
+                    // Button logic
+                    button.style.left = `${btnLeft}px`;
+                    button.style.top = `${btnTop}px`;
+                    button.style.display = "block";
+                });
+
+                img.addEventListener("mouseleave", () => {
+                    setTimeout(() => {
+                        if (!button.matches(":hover")) {
+                            button.style.display = "none";
+                        }
+                    }, 200);
+                    tooltip.style.display = "none";
+                });
+            });
+
+
+            button.addEventListener("mouseleave", () => {
+                button.style.display = "none";
+            });
+
+            // Optional: what happens when you click the button
+            button.addEventListener("click", () => {
+                alert("Visiting the village!");
+            });
+
+
+
             const map = document.getElementById('map');
             const wrapper = document.getElementById('map-wrapper');
             const spyglass = document.getElementById('spyglass-overlay');
@@ -202,7 +311,7 @@
                 spyglass.style.left = `${screenX - 60}px`;
                 spyglass.style.top = `${screenY - 10}px`;
 
-                spyglass.style.width = '100px';
+                spyglass.style.width = '65px';
                 spyglass.style.height = 'auto';
                 spyglass.style.transform = `scale(${zoomFactor})`;
             }
