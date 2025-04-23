@@ -20,7 +20,7 @@ import java.util.Random;
 /**
  * This class generates the game map.
  */
-public class MapGenerator {
+public class GameMapGenerator {
 
     /**
      * The maximum number of mountains to generate.
@@ -54,6 +54,11 @@ public class MapGenerator {
      */
     private static double enemyChance = 0.3;
 
+
+
+
+
+
     /**
      * Generates the game map.
      * @return The generated game map.
@@ -69,6 +74,9 @@ public class MapGenerator {
          * Random number generator.
          */
         Random rand = new Random();
+
+
+        
 
         // Create a list to hold all possible roads
         /**
@@ -90,8 +98,8 @@ public class MapGenerator {
 
             do {
                 // Generate random X and Y coordinates
-                x = rand.nextInt(MAX_X / 50) * 50 + 300;
-                y = rand.nextInt(MAX_Y / 50) * 50 + 20;
+                x = rand.nextInt(MAX_X / 50) * 50 + 300;// 50 for my vertical padding and 300 my sidebar.
+                y = rand.nextInt(MAX_Y / 50) * 50 + 20; // 50 for my horizontal padding and 20 to not generate underneat header.
                 validPosition = true;
 
                 // Avoid overlap with existing mountains
@@ -114,7 +122,7 @@ public class MapGenerator {
                     }
                 }
 
-                // Also avoid overlap with villages
+                // Also I avoid overlap with villages
                 for (Village existingVillage : map.getVillages()) {
                     /**
                      * The difference in x-coordinates between the existing village and the new mountain.
@@ -229,14 +237,14 @@ public class MapGenerator {
                             v2.getXCoordinate(), v2.getYCoordinate(),
                             mountain.getXCoordinate(), mountain.getYCoordinate(),
                             MOUNTAIN_RADIUS
-                            )) // Adjust if your mountain image is wider
+                            ))  
                     {
                         intersectsMountain = true;
                         break;
                     }
                 }
          
-                // If the road does not intersect any mountains, add it to the list of possible roads
+                // If the road does not intersect any mountains, I add it to the list of possible roads
                 if (!intersectsMountain) {
                     // Calculate the weight of the road
                     int weight = GameUtils.calculateDistance(v1, v2);
@@ -246,7 +254,7 @@ public class MapGenerator {
             }
         }
         
-        // Build MST roads
+        // Build MinnumSpanningTree roads (code for my MST found in /mechanics/pathfinding/MSTBuilder.java)
         List<Road> mstRoads = MSTBuilder.buildMST(villages, allRoads);
         // Add the MST roads to the map
         for (Road road : mstRoads) {

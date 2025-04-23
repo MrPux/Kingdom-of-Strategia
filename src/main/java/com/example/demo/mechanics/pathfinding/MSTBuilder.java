@@ -8,8 +8,6 @@ import java.util.*;
 import com.example.demo.classes.Road;
 import com.example.demo.classes.Village;
 
-import java.util.*;
-
 /**
  * This class builds the Minimum Spanning Tree (MST) for pathfinding.
  */

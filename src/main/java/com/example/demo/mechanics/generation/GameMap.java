@@ -105,15 +105,15 @@ public class GameMap {
     /**
      * Adds Mountain Objects to mountains List Structure.
      */
-    public void addMountain(Mountain m) {
-        this.mountains.add(m);
+    public void addMountain(Mountain newMountain) {
+        this.mountains.add(newMountain);
     }
 
     /**
      * Adds Enemy Objects to the enemies List Structure.
      */
-    public void addEnemy(Enemy e) {
-        this.enemies.add(e);
+    public void addEnemy(Enemy newEnemy) {
+        this.enemies.add(newEnemy);
     }
 
     /**
@@ -123,6 +123,7 @@ public class GameMap {
         villages.clear();
         roads.clear();
         mountains.clear();
+        enemies.clear();
     }
 
 

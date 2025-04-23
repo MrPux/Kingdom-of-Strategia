@@ -1,6 +1,3 @@
-/**
- * As the ClickController, I handle the '/click' endpoint to process actions sent from the frontend.
- */
 package com.example.demo.controllers;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,14 +11,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * As the ClickController, I handle the '/click' endpoint to process actions sent from the frontend.
+ * ClickController, handles the '/click' endpoint to process actions sent from the frontend.
+ * Over all, this is me playing around to learn about controlles in spring-boot. So ignore if you read this controller.
  */
 @RestController
 public class ClickController {
 
     /**
-     * I am the method that gets executed when the frontend sends a POST request to the '/click' endpoint.
-     * I receive a map containing the action performed, print it to the console, and return a confirmation message.
+     * Gets executed when the frontend sends a POST request to the '/click' endpoint.
+     * receives a map containing the action performed, print it to the console, and return a confirmation message.
      * @param body A map containing the action sent from the frontend.
      * @return A string confirming the action received.
      */

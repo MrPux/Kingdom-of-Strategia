@@ -4,11 +4,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.mechanics.generation.GameMap;
-import com.example.demo.mechanics.generation.MapGenerator;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import com.example.demo.mechanics.generation.GameMap;
-import com.example.demo.mechanics.generation.MapGenerator;
+import com.example.demo.mechanics.generation.GameMapGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,16 +23,12 @@ public class MyController {
      */
     @GetMapping("/hello")
     public String showMap(Model model) {
-        /**
-         * The generated game map.
-         */
-        GameMap gameMap = MapGenerator.generateMap();
+        GameMap gameMap = GameMapGenerator.generateMap();
         model.addAttribute("villages", gameMap.getVillages());
         model.addAttribute("roads", gameMap.getRoads());
         model.addAttribute("mountains", gameMap.getMountains());
         System.out.println("Spawned enemies: " + gameMap.getEnemies().size());
         model.addAttribute("enemies", gameMap.getEnemies());
-        return "index"; // Template name
+        return "index";
     }
-
 }

@@ -1,62 +1,79 @@
 <!DOCTYPE html>
-<!-- This is the main HTML file for the Kingdom of Strategia game. -->
 <html lang="en">
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Kingdom of Strategia</title>
 
     <style>
-        /* Basic styling for the header */
-        header h1 {
-            position: absolute;
-            width: 100%;
-            margin: 0;
-            padding: 10px;
-            /* background-color: #017060; */
+        header {
+            height: 50px;
             background-color: black;
-            color: white;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
             z-index: 1;
         }
 
-        /* Basic styling for the HTML and body elements */
+        header h1 {
+            margin: 0;
+            padding: 0;
+            color: white;
+        }
+
         html,
         body {
             width: 100%;
             padding: 0;
             height: 100%;
-            overflow: hidden;
+            overflow: auto;
             font-family: sans-serif;
         }
 
-        /* Styling for the main container */
         #container {
             display: flex;
             flex-direction: row;
             width: 100vw;
-            height: 100vh;
-            /* border:red; */
+            height: auto;
         }
 
-        /* Styling for the game map */
-        #map {
+        #map-wrapper {
             flex: 1;
+            overflow: scroll;
             position: relative;
-            margin-top: 48px;
-            overflow: hidden;
+        }
+
+        #map {
+            position: relative;
+            width: 2000px;
+            height: 2000px;
             background-color: #e8e8e8;
-            border: red;
             background-image:
                 linear-gradient(to right, #ccc 1px, transparent 1px),
                 linear-gradient(to bottom, #ccc 1px, transparent 1px);
             background-size: 50px 50px;
+            transition: transform 0.9s ease;
         }
 
-        /* Styling for the sidebar */
+         #spyglass-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: contain;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
         #sidebar {
-            width: 300px;
+            width: auto;
+            box-sizing: border-box;
+            height: 100vh;
             background-color: #009a7e;
             padding: 15px;
             overflow-y: auto;
@@ -64,7 +81,6 @@
             z-index: 1000;
         }
 
-        /* Styling for SVG elements */
         svg {
             position: absolute;
             top: 0;
@@ -74,82 +90,79 @@
             pointer-events: none;
         }
 
-        /* Styling for image elements */
         img {
             position: absolute;
             z-index: 2;
         }
 
-        /* Styling for unordered lists */
         ul {
             padding-left: 20px;
         }
+
+        /* Binocular overlay */
+
+
     </style>
 </head>
 
-<header>
-    <nav>
-        <h1>Kingdom of Strategia</h1>
-    </nav>
-</header>
-
 <body>
+
+    <header>
+        <nav>
+            <h1>Kingdom of Strategia</h1>
+        </nav>
+    </header>
+
     <div id="container">
 
-        <!-- Game Map Section -->
-        <div id="map">
-            <svg id="game-lines">
-                <!-- Iterate over the roads and draw lines -->
-                <th:block th:each="road : ${roads}">
+        <div id="map-wrapper">
+            <div id="map">
+                <svg id="game-lines">
+                    <th:block th:each="road : ${roads}">
+                        <th:block th:if="${road != null and road.fromVillage != null and road.toVillage != null}">
+                            <text th:attr="x=${(road.fromVillage.xCoordinate + road.toVillage.xCoordinate) / 2},
+                                           y=${(road.fromVillage.yCoordinate + road.toVillage.yCoordinate) / 2 - 10}"
+                                font-size="12" fill="black" th:text="'W: ' + ${road.weight}"></text>
+                            <line th:attr="x1=${road.fromVillage.xCoordinate + 30},
+                                           y1=${road.fromVillage.yCoordinate + 30},
+                                           x2=${road.toVillage.xCoordinate + 30},
+                                           y2=${road.toVillage.yCoordinate + 30}" stroke="red" stroke-width="5" />
+                        </th:block>
+                    </th:block>
+                </svg>
+
+                <!-- Mountains -->
+                <th:block th:each="mountain : ${mountains}">
+                    <img th:src="@{/assets/mountains/{file}(file=${mountain.sprite})}"
+                        th:style="'left: ' + ${mountain.XCoordinate} + 'px; top: ' + ${mountain.YCoordinate} + 'px;'"
+                        width="60" height="60" />
+                </th:block>
+
+                <!-- Villages -->
+                <th:block th:each="village : ${villages}">
+                    <img th:src="@{${village.sprite}}"
+                        th:style="'left: ' + ${village.XCoordinate} + 'px; top: ' + ${village.YCoordinate} + 'px;'"
+                        width="60" height="50" />
+                </th:block>
+
+                <!-- Enemies -->
+                <th:block th:each="enemy : ${enemies}">
                     <th:block th:if="${road != null and road.fromVillage != null and road.toVillage != null}">
-                        <text th:attr="x=${(road.fromVillage.xCoordinate + road.toVillage.xCoordinate) / 2},
-                                       y=${(road.fromVillage.yCoordinate + road.toVillage.yCoordinate) / 2 - 10}"
-                            font-size="12" fill="black" th:text="'W: ' + ${road.weight}">
-                        </text>
-                        <line th:attr="x1=${road.fromVillage.xCoordinate + 30},
-                                       y1=${road.fromVillage.yCoordinate + 30},
-                                       x2=${road.toVillage.xCoordinate + 30},
-                                       y2=${road.toVillage.yCoordinate + 30}" stroke="red" stroke-width="5" />
+                        <th:block th:if="${T(java.lang.Math).random() < 0.3}">
+                            <img th:src="@{/assets/enemy-lvl-1.png}"
+                                th:style="'left: ' + ${((road.fromVillage.xCoordinate + road.toVillage.xCoordinate) / 2)} + 'px; top: ' + ${((road.fromVillage.yCoordinate + road.toVillage.yCoordinate) / 2)} + 'px;'"
+                                width="30" height="30" />
+                        </th:block>
                     </th:block>
                 </th:block>
-
-
-            </svg>
-            <!-- Mountains -->
-            <th:block th:each="mountain : ${mountains}">
-                <img th:src="@{/assets/mountains/{file}(file=${mountain.sprite})}"
-                    th:style="'left: ' + ${mountain.XCoordinate} + 'px; top: ' + ${mountain.YCoordinate} + 'px;'"
-                    width="60" height="80" />
-            </th:block>
-
-            <!-- Villages -->
-            <th:block th:each="village : ${villages}">
-                <img th:src="@{${village.sprite}}"
-                    th:style="'left: ' + ${village.XCoordinate} + 'px; top: ' + ${village.YCoordinate} + 'px;'"
-                    width="60" height="60" />
-            </th:block>
-
-            <!-- enemies -->
-            <th:block th:each="enemy : ${enemies}">
-                <th:block th:if="${road != null and road.fromVillage != null and road.toVillage != null}">
-                    <th:block th:if="${T(java.lang.Math).random() < 0.3}">
-                        <!-- Adjust the probability as needed -->
-                        <img th:src="@{/assets/enemy-lvl-1.png}"
-                            th:style="'left: ' + ${((road.fromVillage.xCoordinate + road.toVillage.xCoordinate) / 2)} + 'px; top: ' + ${((road.fromVillage.yCoordinate + road.toVillage.yCoordinate) / 2)} + 'px;'"
-                            width="30" height="30" />
-                    </th:block>
-                </th:block>
-            </th:block>
-
-
-
-
+                 <img id="spyglass-overlay" src="/assets/spyglass.png" alt="Spyglass View" style="width: 100%; height: 100%;" />
+            </div>
         </div>
 
-        <!-- Debug Info on the RIGHT -->
         <div id="sidebar">
             <h2>Controls</h2>
-            <h5>Double Click to ZOOM IN or zoom out</h5>
+            <h5>ZOOM IN - double click</h5>
+            <h5>ZOOM OUT - double click</h5>
             <h2>Table Info</h2>
             <ul>
                 <li th:each="road : ${roads}" th:text="'From (' + ${road.fromVillage.XCoordinate} + ', ' + ${road.fromVillage.YCoordinate} +
@@ -159,34 +172,105 @@
             </ul>
         </div>
     </div>
+ 
 
     <script>
-        // Wait for the window to load
         window.addEventListener('load', () => {
             const map = document.getElementById('map');
-            const svg = document.getElementById('game-lines');
-            svg.setAttribute('width', map.offsetWidth);
-            svg.setAttribute('height', map.offsetHeight);
+            const wrapper = document.getElementById('map-wrapper');
+            const spyglass = document.getElementById('spyglass-overlay');
 
             let zoomedIn = false;
-            // Add double-click event listener to the map
-            map.addEventListener('dblclick', (e) => {
-                // Get mouse position
-                const x = e.clientX - map.offsetLeft;
-                const y = e.clientY - map.offsetTop;
+            const zoomFactor = 4.8;
+            let zoomOrigin = { x: 0, y: 0 };
 
-                // Toggle zoom state
+            const initialScroll = {
+                left: wrapper.scrollLeft,
+                top: wrapper.scrollTop
+            };
+
+
+            function updateSpyglassPosition(x, y) {
+                const wrapperRect = wrapper.getBoundingClientRect();
+                const mapRect = map.getBoundingClientRect();
+
+                // Convert map coordinates to screen coordinates
+                const screenX = x - wrapper.scrollLeft + mapRect.left;
+                const screenY = y - wrapper.scrollTop + mapRect.top;
+
+                // Your exact offsets
+                spyglass.style.left = `${screenX - 60}px`;
+                spyglass.style.top = `${screenY - 10}px`;
+
+                spyglass.style.width = '100px';
+                spyglass.style.height = 'auto';
+                spyglass.style.transform = `scale(${zoomFactor})`;
+            }
+
+
+
+            map.addEventListener('dblclick', (e) => {
+                const rect = map.getBoundingClientRect();
+                const x = e.clientX - rect.left + wrapper.scrollLeft;
+                const y = e.clientY - rect.top + wrapper.scrollTop;
+
                 zoomedIn = !zoomedIn;
 
-                // Apply zoom and adjust position
+                document.addEventListener('mousemove', (e) => {
+                    if (zoomedIn) {
+                        const spyglassSize = 120; // Or match your image's width
+                        const offsetX = spyglassSize / 2;
+                        const offsetY = spyglassSize / 2;
+
+                        spyglass.style.left = `${e.clientX - offsetX}px`;
+                        spyglass.style.top = `${e.clientY - offsetY}px`;
+                    }
+                });
+
+
                 if (zoomedIn) {
+                    zoomOrigin = { x, y };
                     map.style.transformOrigin = `${x}px ${y}px`;
-                    map.style.transform = 'scale(5.5)';
+                    map.style.transform = `scale(${zoomFactor})`;
+
+                    // Position and scale the spyglass at the zoom origin
+                    spyglass.style.opacity = '1';
+                    updateSpyglassPosition(x, y);
+
+
                 } else {
-                    map.style.transformOrigin = 'top left';
-                    map.style.transform = 'scale(1)';
+                    map.style.transformOrigin = `${zoomOrigin.x}px ${zoomOrigin.y}px`;
+                    map.style.transform = `scale(1)`;
+
+                    setTimeout(() => {
+                        wrapper.scrollTo({
+                            left: initialScroll.left,
+                            top: initialScroll.top,
+                            behavior: 'smooth'
+                        });
+                        spyglass.style.opacity = '0';
+                    }, 900);
                 }
             });
+
+            wrapper.addEventListener('scroll', () => {
+                if (zoomedIn) {
+                    const rect = map.getBoundingClientRect();
+                    const x = zoomOrigin.x + wrapper.scrollLeft - rect.left;
+                    const y = zoomOrigin.y + wrapper.scrollTop - rect.top;
+                    updateSpyglassPosition(x, y);
+                }
+            });
+
+            document.addEventListener('gesturestart', function (e) {
+                e.preventDefault();
+            });
+
+            document.addEventListener('wheel', function (e) {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
         });
     </script>
 </body>

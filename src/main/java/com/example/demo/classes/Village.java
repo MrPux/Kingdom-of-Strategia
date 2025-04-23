@@ -114,14 +114,29 @@ public class Village {
         this.yCoordinate = yCoordinate;
     }
 
+    /**
+     * Overrides the equals method to compare two Village objects.
+     * This method checks if two Village objects are equal based on their id.
+     * @param obj The object to compare with.
+     * @return true if the villages are equal, false otherwise.
+     */
     @Override
     public boolean equals(Object obj) {
+        // If the object is the same instance, return true
         if (this == obj) return true;
+        // If the object is null or not an instance of Village, return false
         if (obj == null || getClass() != obj.getClass()) return false;
+        // Cast the object to Village
         Village village = (Village) obj;
+        // Check if the villages are equal based on their id
         return id == village.id;
     }
 
+    /**
+     * Overrides the hashCode method to generate a hash code for the Village object.
+     * The hash code is based on the id of the village.
+     * @return The hash code for the Village object.
+     */
     @Override
     public int hashCode() {
         return Integer.hashCode(id);

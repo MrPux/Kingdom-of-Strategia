@@ -1,5 +1,5 @@
 /**
- * As a Mountain, I represent a geographical feature within the game world.
+ * Mountain Object, a geographical feature within the game world.
  */
 package com.example.demo.classes;
 
@@ -18,8 +18,7 @@ public class Mountain {
     private String sprite;
 
     /**
-     * am the constructor for creating a Mountain object. I take the x and y coordinates as input
-     * to define my position in the game world.
+     * Constructs a Mountain object. Takes the x and y coordinates as preconditionsto define its position in the game world.
      * @param xCoordinate The x coordinate of the mountain.
      * @param yCoordinate The y coordinate of the mountain.
      */
@@ -30,16 +29,16 @@ public class Mountain {
     }
 
     /**
-     * eturn my x coordinate.
-     * @return The x coordinate of the mountain.
+     * returns x coordinate.
+     * @return xCoordinate The horizontal coordinate of the mountain.
      */
     public int getXCoordinate() {
         return this.xCoordinate;
     }
 
     /**
-     * return my y coordinate.
-     * @return The y coordinate of the mountain.
+     * returns y coordinate.
+     * @return yCoordinate The vertical coordinate of the mountain.
      */
     public int getYCoordinate() {
         return this.yCoordinate;

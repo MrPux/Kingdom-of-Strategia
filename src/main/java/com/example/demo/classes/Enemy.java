@@ -19,13 +19,13 @@ public class Enemy {
 
     /**
      * Constructs an Enemy object.
-     * @param x The x-coordinate of the enemy.
-     * @param y The y-coordinate of the enemy.
+     * @param xCoordinate The x-coordinate of the enemy.
+     * @param yCoordinate The y-coordinate of the enemy.
      * @param level The level of the enemy.
      */
-    public Enemy(int x, int y, int level) {
-        this.xCoordinate = x;
-        this.yCoordinate = y;
+    public Enemy(int xCoordinate, int yCoordinate, int level) {
+        this.xCoordinate = xCoordinate;
+        this.yCoordinate = yCoordinate;
         this.level = level;
     }
 
