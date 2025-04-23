@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Collections; // Import Collections
-import org.slf4j.Logger; 
-import org.slf4j.LoggerFactory; 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A utility class responsible for loading sprite filenames from the classpath.
@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
  * and handles potential IOExceptions during the loading process.
  */
 public class SpriteLoader {
+ 
+    private static final String ENEMY_SPRITE_PATH = "classpath:/static/assets/enemies/";
 
     /**
      * Logger for this class, used for logging messages and debugging.
@@ -24,29 +26,33 @@ public class SpriteLoader {
     private static final Logger logger = LoggerFactory.getLogger(SpriteLoader.class);
 
     /**
-     * A list of village sprite filenames. 
+     * A list of village sprite filenames.
      * This list is populated during class initialization by the {@link #loadVillageSprites()} method.
      */
     public static final List<String> VILLAGE_SPRITES;
 
     /**
-     * A list of mountain sprite filenames. 
+     * A list of enemy sprite filenames.
+     * This list is populated during class initialization by the {@link #loadEnemySprites()} method.
+     */
+    public static final List<String> ENEMY_SPRITES;
+
+    /**
+     * A list of mountain sprite filenames.
      * This list is populated during class initialization by the {@link #loadMountainSprites()} method.
      */
     public static final List<String> MOUNTAIN_SPRITES;
 
     /**
      * Static initializer block that is executed when the class is loaded.
-     * This block calls the methods to load the village and mountain sprite lists.
      */
     static {
-        // Load village sprites by calling the loadVillageSprites() method
         VILLAGE_SPRITES = loadVillageSprites();
-        // Load mountain sprites by calling the loadMountainSprites() method
         MOUNTAIN_SPRITES = loadMountainSprites();
+        ENEMY_SPRITES = loadEnemySprites();
     }
 
-    /**
+ /**
      * Loads the village sprite filenames from the classpath.
      * This method uses a {@link ResourcePatternResolver} to find all PNG files in the
      * "classpath:/static/assets/villages/" directory and adds them to a list.
@@ -88,7 +94,6 @@ public class SpriteLoader {
         // Return the list of filenames
         return filenames;
     }
-
     /**
      * Loads the mountain sprite filenames from the classpath.
      * This method uses a {@link ResourcePatternResolver} to find all PNG files in the
@@ -118,20 +123,32 @@ public class SpriteLoader {
     }
 
     /**
+     * Loads the enemy sprite filenames from the classpath.
+     * @return A list of enemy sprite filenames.
+     */
+    private static List<String> loadEnemySprites() {
+        final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+        List<String> filenames = new ArrayList<>();
+        try {
+            Resource[] resources = resourcePatternResolver.getResources( ENEMY_SPRITE_PATH + "*.png");
+            resourcesToList(resources, filenames);
+            Collections.shuffle(filenames);
+        } catch (IOException e) {
+            logger.error("Error loading enemy sprites", e);
+        }
+        return filenames;
+    }
+
+    /**
      * Converts an array of resources to a list of filenames.
-     * This method iterates over the resources and extracts the filename from each resource.
      * @param resources The array of resources to convert.
      * @param filenames The list to store the filenames.
      * @throws IOException If there was an issue getting the filename from a resource.
      */
     private static void resourcesToList(Resource[] resources, List<String> filenames) throws IOException {
-        // Iterate over the resources
         for (Resource resource : resources) {
-            // Get the filename from the resource
             String filename = resource.getFilename();
-            // Log the loaded mountain sprite
             logger.info("Loaded sprite: {}", filename);
-            // Add the filename to the list
             filenames.add(filename);
         }
     }

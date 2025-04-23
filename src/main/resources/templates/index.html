@@ -99,6 +99,18 @@
             padding-left: 20px;
         }
 
+        .enemy {
+        position: absolute;
+        transform: translate(-50%, -50%); /* this centers the div at the x,y */
+    }
+
+    .enemy-sprite {
+        display: block;
+        max-width: 100%;
+        height: auto;
+    }
+
+
         /* Binocular overlay */
     </style>
 </head>
@@ -127,7 +139,7 @@
                     border-radius: 5px;
                     cursor: pointer;
                 ">
-                    Visit
+                    View
                 </button>
 
                 <div id="village-tooltip" style="
@@ -175,26 +187,27 @@
                 <th:block th:each="mountain : ${mountains}">
                     <img th:src="@{/assets/mountains/{file}(file=${mountain.sprite})}"
                         th:style="'left: ' + ${mountain.XCoordinate} + 'px; top: ' + ${mountain.YCoordinate} + 'px;'"
-                        width="60" height="60" />
+                        width="60" height="60"/>
+
                 </th:block>
 
                 <!-- Villages -->
                 <th:block th:each="village : ${villages}">
                     <img class="village-img" th:src="@{${village.sprite}}"
-                        th:style="'left: ' + ${village.XCoordinate} + 'px; top: ' + ${village.YCoordinate} + 'px;'"
+                        th:style="'left: ' + ${village.XCoordinate} + 'px; top: ' + ${village.YCoordinate} + 'px;' + (${village.id == startingVillage.id} ? 'border: 5px solid green;' : '')"
                         width="60" height="50" />
                 </th:block>
 
                 <!-- Enemies -->
-                <th:block th:each="enemy : ${enemies}">
-                    <th:block th:if="${road != null and road.fromVillage != null and road.toVillage != null}">
-                        <th:block th:if="${T(java.lang.Math).random() < 0.3}">
-                            <img th:src="@{/assets/enemy-lvl-1.png}"
-                                th:style="'left: ' + ${((road.fromVillage.xCoordinate + road.toVillage.xCoordinate) / 2)} + 'px; top: ' + ${((road.fromVillage.yCoordinate + road.toVillage.yCoordinate) / 2)} + 'px;'"
-                                width="30" height="30" />
-                        </th:block>
-                    </th:block>
-                </th:block>
+            <!-- Corrected enemy rendering block -->
+            <th:block th:each="enemy : ${enemies}">
+                <img th:src="@{/assets/enemies/{file}(file=${enemy.sprite})}"
+                    th:style="'left: ' + ${enemy.xCoordinate} + 'px; top: ' + ${enemy.yCoordinate} + 'px;'"
+                    width="30" height="30" />
+            </th:block>
+
+
+
                 <img id="spyglass-overlay" src="/assets/spyglass.png" alt="Spyglass View"
                     style="width: 100%; height: 100%;" />
             </div>

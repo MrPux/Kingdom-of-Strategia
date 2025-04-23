@@ -16,17 +16,23 @@ public class Enemy {
      * The level of the enemy.
      */
     private final int level;
+    /**
+     * The sprite of the enemy.
+     */
+    private final String sprite;
 
     /**
      * Constructs an Enemy object.
      * @param xCoordinate The x-coordinate of the enemy.
      * @param yCoordinate The y-coordinate of the enemy.
      * @param level The level of the enemy.
+     * @param sprite The sprite of the enemy.
      */
-    public Enemy(int xCoordinate, int yCoordinate, int level) {
+    public Enemy(int xCoordinate, int yCoordinate, int level, String sprite) {
         this.xCoordinate = xCoordinate;
         this.yCoordinate = yCoordinate;
         this.level = level;
+        this.sprite = sprite;
     }
 
     /**
@@ -51,5 +57,13 @@ public class Enemy {
      */
     public int getLevel() {
         return this.level;
+    }
+
+    /**
+     * Gets the sprite of the enemy.
+     * @return The sprite.
+     */
+    public String getSprite() {
+        return this.sprite;
     }
 }

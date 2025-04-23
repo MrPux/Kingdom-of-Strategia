@@ -23,12 +23,13 @@ public class MyController {
      */
     @GetMapping("/hello")
     public String showMap(Model model) {
-        GameMap gameMap = GameMapGenerator.generateMap();
+        GameMap gameMap = GameMapGenerator.generateMap(model);
         model.addAttribute("villages", gameMap.getVillages());
         model.addAttribute("roads", gameMap.getRoads());
         model.addAttribute("mountains", gameMap.getMountains());
         System.out.println("Spawned enemies: " + gameMap.getEnemies().size());
         model.addAttribute("enemies", gameMap.getEnemies());
+        model.addAttribute("startingVillage", model.getAttribute("startingVillage"));
         return "index";
     }
 }

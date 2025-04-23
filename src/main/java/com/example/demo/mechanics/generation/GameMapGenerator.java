@@ -1,4 +1,3 @@
-
 /**
  * This class generates the game map.
  */
@@ -16,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;  
  
 import java.util.Random;
+
+import org.springframework.ui.Model;
 
 /**
  * This class generates the game map.
@@ -36,7 +37,7 @@ public class GameMapGenerator {
      */
     private static final int MAX_VILLAGES = 40;
     /**
-     * The minimum distance between villages, to avoid villages stacking.
+     * The minimum distance between villages, used for collision detection.
      */
     private static final int MIN_DISTANCE = 100;
 
@@ -63,28 +64,14 @@ public class GameMapGenerator {
      * Generates the game map.
      * @return The generated game map.
      */
-    public static GameMap generateMap() {
+    public static GameMap generateMap(Model model) {
         // Create a new game map
-        /**
-         * The generated game map.
-         */
         GameMap map = new GameMap();
         // Create a new random number generator
-        /**
-         * Random number generator.
-         */
         Random rand = new Random();
 
-
-        
-
-        // Create a list to hold all possible roads
-        /**
-         * List of all possible roads.
-         */
-        List<Road> allRoads = new ArrayList<>();
-        //Create mountains
-        for (int i = 0; i < MAX_MOUNTAINS; i++) {
+           //Create mountains
+           for (int i = 0; i < MAX_MOUNTAINS; i++) {
             /**
              * X and Y coordinates for the mountain
              */
@@ -98,8 +85,8 @@ public class GameMapGenerator {
 
             do {
                 // Generate random X and Y coordinates
-                x = rand.nextInt(MAX_X / 50) * 50 + 300;// 50 for my vertical padding and 300 my sidebar.
-                y = rand.nextInt(MAX_Y / 50) * 50 + 20; // 50 for my horizontal padding and 20 to not generate underneat header.
+                x = rand.nextInt(MAX_X / 50) * 50 + 300;
+                y = rand.nextInt(MAX_Y / 50) * 50 + 20;
                 validPosition = true;
 
                 // Avoid overlap with existing mountains
@@ -122,7 +109,7 @@ public class GameMapGenerator {
                     }
                 }
 
-                // Also I avoid overlap with villages
+                // Also avoid overlap with villages
                 for (Village existingVillage : map.getVillages()) {
                     /**
                      * The difference in x-coordinates between the existing village and the new mountain.
@@ -157,9 +144,8 @@ public class GameMapGenerator {
             map.addMountain(mountain);
         }
 
-
-
         // Create villages
+        List<Village> villages = new ArrayList<>();
         for (int i = 0; i < MAX_VILLAGES; i++) {
             // X and Y coordinates for the village
             int x, y;
@@ -174,12 +160,9 @@ public class GameMapGenerator {
                 validPosition = true;
         
                 // Check if the new village is too close to any existing villages
-                for (Village existing : map.getVillages()) {
-                    // Calculate the difference in x-coordinates
+                for (Village existing : villages) {
                     double dx = existing.getXCoordinate() - x;
-                    // Calculate the difference in y-coordinates
                     double dy = existing.getYCoordinate() - y;
-                    // Calculate the distance between the two villages
                     double distance = Math.sqrt(dx * dx + dy * dy);
         
                     // If the distance is less than the minimum distance, the position is not valid
@@ -191,13 +174,7 @@ public class GameMapGenerator {
 
                 // inside your village do { … } while (!validPosition) loop:
                 for (Mountain mountain : map.getMountains()) {
-                    /**
-                     * The difference in x-coordinates between the mountain and the potential village.
-                     */
                     double mountainXDistance = mountain.getXCoordinate() - x;
-                    /**
-                     * The difference in y-coordinates between the mountain and the potential village.
-                     */
                     double mountainYDistance = mountain.getYCoordinate() - y;
                     double distance = Math.sqrt(mountainXDistance*mountainXDistance + mountainYDistance*mountainYDistance);
                     // use a threshold that covers your mountain radius + half-your-village-size
@@ -215,13 +192,17 @@ public class GameMapGenerator {
             // Create a new village
             Village village = new Village("Village" + i, i, x, y, sprite);
             // Add the village to the map
+            villages.add(village);
             map.addVillage(village);
         }
 
+        // Select a random village to be the starting village
+        Village startingVillage = villages.get(rand.nextInt(villages.size()));
+        model.addAttribute("startingVillage", startingVillage);
 
 
         // Create all possible roads between pairs
-        List<Village> villages = map.getVillages();
+        List<Road> allRoads = new ArrayList<>();
         for (int i = 0; i < villages.size(); i++) {
             for (int j = i + 1; j < villages.size(); j++) {
                 // Get the two villages
@@ -265,36 +246,21 @@ public class GameMapGenerator {
         // Create Enemies
         for (Road road : mstRoads) {
             if (rand.nextDouble() < enemyChance) {
-                // choose a point t∈[0.2,0.8] so enemies aren’t on top of villages
-                /**
-                 * A value between 0.2 and 0.8, used to position the enemy along the road.
-                 */
-                double roadPositionFactor = 0.2 + rand.nextDouble() * 0.6;
-                /**
-                 * The x-coordinate of the enemy.
-                 */
-                int enemyXCoordinate = (int) (road.getFromVillage().getXCoordinate() * (1 - roadPositionFactor)
-                            + road.getToVillage().getXCoordinate() * roadPositionFactor);
-                /**
-                 * The y-coordinate of the enemy.
-                 */
-                int enemyYCoordinate = (int) (road.getFromVillage().getYCoordinate() * (1 - roadPositionFactor)
-                            + road.getToVillage().getYCoordinate() * roadPositionFactor);
+                // Calculate the midpoint of the road
+                int enemyXCoordinate = (road.getFromVillage().getXCoordinate() + road.getToVillage().getXCoordinate()) / 2;
+                int enemyYCoordinate = (road.getFromVillage().getYCoordinate() + road.getToVillage().getYCoordinate()) / 2;
 
                 // optional: skip if too close to a mountain or village
-                /**
-                 * Mountain object
-                 */
                 boolean valid = map.getMountains().stream().noneMatch(
                     mountain -> GameUtils.calculateDistance(enemyXCoordinate, enemyYCoordinate, mountain.getXCoordinate(), mountain.getYCoordinate()) < MOUNTAIN_RADIUS + 20
                 );
+                String enemySprite = SpriteLoader.ENEMY_SPRITES.get(rand.nextInt(SpriteLoader.ENEMY_SPRITES.size()));
                 if (valid) {
-                    map.addEnemy(new Enemy(enemyXCoordinate, enemyYCoordinate, 1));  // level‑1 enemy
+                    map.addEnemy(new Enemy(enemyXCoordinate, enemyYCoordinate, 1, enemySprite));
                 }
             }
         }
 
         return map;
     }
-    
 }

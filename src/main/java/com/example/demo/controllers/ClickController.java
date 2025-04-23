@@ -4,12 +4,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
+import java.util.Map; 
 /**
  * ClickController, handles the '/click' endpoint to process actions sent from the frontend.
  * Over all, this is me playing around to learn about controlles in spring-boot. So ignore if you read this controller.
