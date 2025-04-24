@@ -7,6 +7,7 @@ import com.example.demo.classes.Enemy;
 import com.example.demo.classes.Mountain;
 import com.example.demo.classes.Road;
 import com.example.demo.classes.Village;
+import com.example.demo.classes.VillageType;
 import com.example.demo.mechanics.pathfinding.MSTBuilder;
 import com.example.demo.utils.GameUtils;
 import com.example.demo.utils.SpriteLoader;
@@ -15,12 +16,13 @@ import java.util.ArrayList;
 import java.util.List;  
  
 import java.util.Random;
-
+ 
+import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
-
 /**
  * This class generates the game map.
  */
+@Component
 public class GameMapGenerator {
 
     /**
@@ -57,15 +59,12 @@ public class GameMapGenerator {
 
 
 
-
-
-
     /**
      * Generates the game map.
      * @return The generated game map.
      */
-    public static GameMap generateMap(Model model) {
-        // Create a new game map
+    public static GameMap generateMap(){
+    // Create a new game map
         GameMap map = new GameMap();
         // Create a new random number generator
         Random rand = new Random();
@@ -91,15 +90,8 @@ public class GameMapGenerator {
 
                 // Avoid overlap with existing mountains
                 for (Mountain existing : map.getMountains()) {
-                    /**
-                     * The difference in x-coordinates between the existing mountain and the new mountain.
-                     */
                     double xDifference = existing.getXCoordinate() - x;
-                    /**
-                     * The difference in y-coordinates between the existing mountain and the new mountain.
-                     */
                     double yDifference = existing.getYCoordinate() - y;
-                    // Calculate the distance between the two mountains
                     double distance = Math.sqrt(xDifference * xDifference + yDifference * yDifference);
 
                     // If the distance is less than the minimum distance, the position is not valid
@@ -111,15 +103,8 @@ public class GameMapGenerator {
 
                 // Also avoid overlap with villages
                 for (Village existingVillage : map.getVillages()) {
-                    /**
-                     * The difference in x-coordinates between the existing village and the new mountain.
-                     */
                     double villageXDistance = existingVillage.getXCoordinate() - x;
-                    /**
-                     * The difference in y-coordinates between the existing village and the new mountain.
-                     */
                     double villageYDistance = existingVillage.getYCoordinate() - y;
-                    // Calculate the distance between the village and the mountain
                     double distance = Math.sqrt(villageXDistance * villageXDistance + villageYDistance * villageYDistance);
 
                     // If the distance is less than the minimum distance, the position is not valid
@@ -133,73 +118,68 @@ public class GameMapGenerator {
 
             // Get a random sprite
             List<String> mountainSprites = SpriteLoader.MOUNTAIN_SPRITES;
-            /**
-             * The sprite for the mountain.
-             */
             String sprite = mountainSprites.get(rand.nextInt(mountainSprites.size()));
-            // Create a new mountain
             Mountain mountain = new Mountain(x, y, sprite);
 
             // Add the mountain to the map
             map.addMountain(mountain);
         }
 
-        // Create villages
-        List<Village> villages = new ArrayList<>();
+                List<Village> villages = new ArrayList<>();
         for (int i = 0; i < MAX_VILLAGES; i++) {
-            // X and Y coordinates for the village
             int x, y;
-            // Flag to check if the position is valid
             boolean validPosition;
-        
             do {
-                // Generate random X and Y coordinates
                 x = rand.nextInt(MAX_X / 50) * 50 + 300;
                 y = rand.nextInt(MAX_Y / 50) * 50 + 10;
-
                 validPosition = true;
-        
-                // Check if the new village is too close to any existing villages
+
                 for (Village existing : villages) {
                     double dx = existing.getXCoordinate() - x;
                     double dy = existing.getYCoordinate() - y;
-                    double distance = Math.sqrt(dx * dx + dy * dy);
-        
-                    // If the distance is less than the minimum distance, the position is not valid
-                    if (distance < MIN_DISTANCE) {
+                    if (Math.sqrt(dx * dx + dy * dy) < MIN_DISTANCE) {
                         validPosition = false;
                         break;
                     }
                 }
 
-                // inside your village do { … } while (!validPosition) loop:
                 for (Mountain mountain : map.getMountains()) {
-                    double mountainXDistance = mountain.getXCoordinate() - x;
-                    double mountainYDistance = mountain.getYCoordinate() - y;
-                    double distance = Math.sqrt(mountainXDistance*mountainXDistance + mountainYDistance*mountainYDistance);
-                    // use a threshold that covers your mountain radius + half-your-village-size
-                    if (distance < MOUNTAIN_RADIUS + 30) {
+                    double dx = mountain.getXCoordinate() - x;
+                    double dy = mountain.getYCoordinate() - y;
+                    if (Math.sqrt(dx * dx + dy * dy) < MOUNTAIN_RADIUS + 30) {
                         validPosition = false;
                         break;
                     }
                 }
 
-        
             } while (!validPosition);
 
-            // Get a random sprite
-            String sprite = "/assets/villages/" + SpriteLoader.VILLAGE_SPRITES.get(rand.nextInt(SpriteLoader.VILLAGE_SPRITES.size()));
-            // Create a new village
-            Village village = new Village("Village" + i, i, x, y, sprite);
-            // Add the village to the map
+             // Instead of randomizing each separately
+            VillageType type = VillageType.values()[rand.nextInt(VillageType.values().length)];
+
+            String name = switch (type) {
+                case COMMON -> "CommonVillage";
+                case TIMBER -> "TimberVillage";
+                case ARMOR -> "ArmorVillage";
+                case COMPOSITE -> "CompositeVillage";
+            };
+
+            String sprite = "/assets/villages/" + name.toLowerCase() + ".png";
+
+
+            int structures = rand.nextInt(10) + 2;
+            int maxPop = structures * 5;
+            int minPop = structures * 2;
+            int population = rand.nextInt(maxPop - minPop + 1) + minPop;
+
+            Village village = new Village("Village" + i, i, population, structures, x, y, sprite, type);
             villages.add(village);
             map.addVillage(village);
         }
 
         // Select a random village to be the starting village
         Village startingVillage = villages.get(rand.nextInt(villages.size()));
-        model.addAttribute("startingVillage", startingVillage);
-
+        map.setStartingVillage(startingVillage);
 
         // Create all possible roads between pairs
         List<Road> allRoads = new ArrayList<>();
@@ -242,20 +222,25 @@ public class GameMapGenerator {
             map.addRoad(road);
         }
 
-
         // Create Enemies
         for (Road road : mstRoads) {
-            if (rand.nextDouble() < enemyChance) {
-                // Calculate the midpoint of the road
-                int enemyXCoordinate = (road.getFromVillage().getXCoordinate() + road.getToVillage().getXCoordinate()) / 2;
-                int enemyYCoordinate = (road.getFromVillage().getYCoordinate() + road.getToVillage().getYCoordinate()) / 2;
+            
+            // Calculate the midpoint of the road
+            int enemyXCoordinate = (road.getFromVillage().getXCoordinate() + road.getToVillage().getXCoordinate()) / 2;
+            int enemyYCoordinate = (road.getFromVillage().getYCoordinate() + road.getToVillage().getYCoordinate()) / 2;
 
+            // Skip if too close to the starting village
+            if (GameUtils.calculateDistance(enemyXCoordinate, enemyYCoordinate, startingVillage.getXCoordinate(), startingVillage.getYCoordinate()) < MIN_DISTANCE) {
+                continue;
+            }
+
+            if (rand.nextDouble() < enemyChance) {
                 // optional: skip if too close to a mountain or village
                 boolean valid = map.getMountains().stream().noneMatch(
                     mountain -> GameUtils.calculateDistance(enemyXCoordinate, enemyYCoordinate, mountain.getXCoordinate(), mountain.getYCoordinate()) < MOUNTAIN_RADIUS + 20
                 );
-                String enemySprite = SpriteLoader.ENEMY_SPRITES.get(rand.nextInt(SpriteLoader.ENEMY_SPRITES.size()));
                 if (valid) {
+                    String enemySprite = SpriteLoader.ENEMY_SPRITES.get(rand.nextInt(SpriteLoader.ENEMY_SPRITES.size()));
                     map.addEnemy(new Enemy(enemyXCoordinate, enemyYCoordinate, 1, enemySprite));
                 }
             }

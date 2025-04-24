@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Village of ' + ${village.name}">Village Info</title>
+    <style>
+         /* header { 
+            background-color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;  
+        }
+
+
+        header h1 { 
+            color: white;
+        }
+ */
+
+        body {
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+            padding: 40px;
+        }
+
+        .village-card {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 25px 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .village-card h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .village-card img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        .village-card p {
+            margin: 8px 0;
+            font-size: 15px;
+            color: #444;
+        }
+
+        .village-card a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #009a7e;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- <header>
+        <nav>
+            <h1>Kingdom of Strategia</h1>
+        </nav>
+    </header> -->
+
+<div class="village-card">
+    <h1 th:text="${village.formattedName}">Village Name</h1>
+    <p><strong>Population:</strong> <span th:text="${village.population}">0</span></p>
+    <p><strong>Structures:</strong> <span th:text="${village.structures}">0</span></p>
+    <p><strong>Coordinates:</strong> 
+        (<span th:text="${village.xCoordinate}">x</span>, 
+        <span th:text="${village.yCoordinate}">y</span>)
+    </p>
+
+    <hr>
+    <h3>Resources</h3> 
+    <p><strong>Food:</strong> <span th:text="${village.food}">0</span></p> 
+    <p><strong>Wood:</strong> <span th:text="${village.wood}">0</span></p>
+    <p><strong>Rocks:</strong> <span th:text="${village.rocks}">0</span></p>
+    <p><strong>Iron:</strong> <span th:text="${village.iron}">0</span></p>
+    <p><strong>Coal:</strong> <span th:text="${village.coal}">0</span></p>
+    <p><strong>Laborers:</strong> <span th:text="${village.laborers}">0</span></p>
+    <p><strong>Knights:</strong> <span th:text="${village.knights}">0</span></p>
+    
+
+    <a href="/hello">← Back to Map</a>
+</div>
+
+</body>
+</html>

@@ -80,6 +80,15 @@
             color: white;
             z-index: 1000;
         }
+        #village-tooltip {
+    padding: 10px 14px;
+    font-size: 13px;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 8px;
+    line-height: 1.4;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
 
         svg {
             position: absolute;
@@ -122,7 +131,6 @@
             <h1>Kingdom of Strategia</h1>
         </nav>
     </header>
-
     <div id="container">
 
         <div id="map-wrapper">
@@ -178,7 +186,7 @@
                             <line th:attr="x1=${road.fromVillage.xCoordinate + 30},
                                            y1=${road.fromVillage.yCoordinate + 30},
                                            x2=${road.toVillage.xCoordinate + 30},
-                                           y2=${road.toVillage.yCoordinate + 30}" stroke="red" stroke-width="5" />
+                                           y2=${road.toVillage.yCoordinate + 30}" stroke="white" stroke-width="5" />
                         </th:block>
                     </th:block>
                 </svg>
@@ -193,9 +201,16 @@
 
                 <!-- Villages -->
                 <th:block th:each="village : ${villages}">
-                    <img class="village-img" th:src="@{${village.sprite}}"
-                        th:style="'left: ' + ${village.XCoordinate} + 'px; top: ' + ${village.YCoordinate} + 'px;' + (${village.id == startingVillage.id} ? 'border: 5px solid green;' : '')"
-                        width="60" height="50" />
+                    <img class="village-img"
+                    th:src="@{${village.sprite}}"
+                    th:data-village-id="${village.id}"
+                    th:data-population="${village.population}"
+                    th:data-structures="${village.structures}"
+                    th:data-x="${village.xCoordinate}"
+                    th:data-y="${village.yCoordinate}"
+                    th:style="'left: ' + ${village.XCoordinate} + 'px; top: ' + ${village.YCoordinate} + 'px;' + (${village.id == startingVillage.id} ? 'border: 5px solid green;' : '')"
+                    width="60" height="50" />
+               
                 </th:block>
 
                 <!-- Enemies -->
@@ -217,6 +232,9 @@
             <h2>Controls</h2>
             <h5>ZOOM IN - double click</h5>
             <h5>ZOOM OUT - double click</h5>
+            <form action="/empty" method="post">
+                <button type="submit">New Gen</button>
+            </form>
             <h2>Table Info</h2>
             <ul>
                 <li th:each="road : ${roads}" th:text="'From (' + ${road.fromVillage.XCoordinate} + ', ' + ${road.fromVillage.YCoordinate} +
@@ -226,56 +244,84 @@
             </ul>
         </div>
     </div>
-
+<!--  -->
 
     <script>
         window.addEventListener('load', () => {
-
-      
+            const map = document.getElementById('map');
             const button = document.getElementById("village-action-btn");
             const villageImgs = document.querySelectorAll(".village-img");
             const tooltip = document.getElementById("village-tooltip");
             const tooltipText = document.getElementById("tooltip-text");
-
-
+            const wrapper = document.getElementById('map-wrapper');
+            const spyglass = document.getElementById('spyglass-overlay');
+    
+            let zoomedIn = false;
+            const zoomFactor = 4.8;
+            let zoomOrigin = { x: 0, y: 0 };
+    
+            const initialScroll = {
+                left: wrapper.scrollLeft,
+                top: wrapper.scrollTop
+            };
+    
             button.addEventListener("mouseenter", () => {
-                button.style.backgroundColor = "rgba(0, 102, 110, 0.517)"; // original color
+                button.style.backgroundColor = "rgba(0, 102, 110, 0.517)";
                 button.style.color = "white";
             });
-
+    
             button.addEventListener("mouseleave", () => {
                 button.style.backgroundColor = "rgba(66, 66, 66, 0.517)";
                 button.style.color = "white";
                 button.style.display = "none";
             });
-
+    
             villageImgs.forEach(img => {
-                img.addEventListener("mouseenter", (e) => {
+                img.addEventListener("mouseenter", () => {
                     const rect = img.getBoundingClientRect();
                     const mapRect = map.getBoundingClientRect();
-
+    
                     const left = rect.left - mapRect.left + img.offsetWidth / 2;
                     const top = rect.top - mapRect.top - 10;
-
                     const btnLeft = left - 25;
-                    const btnTop = top + img.offsetHeight + 10; // 👈 new: below the village
-
-                    // Tooltip logic
+                    const btnTop = top + img.offsetHeight + 10;
+    
                     const src = img.getAttribute("src");
                     const fileName = src.split("/").pop().replace(".png", "");
                     const formatted = fileName.replace(/[-_]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+    
+                    const population = img.dataset.population;
+                    const structures = img.dataset.structures;
+                    const x = img.dataset.x;
+                    const y = img.dataset.y;
+                    const villageId = img.dataset.villageId;
 
-                    tooltipText.textContent = formatted;
+                    button.dataset.villageId = villageId;
+                    button.dataset.population = population;
+                    button.dataset.structures = structures;
+                    button.dataset.name = formatted;
+
+
+                    // ✅ Attach village ID to the button
+                    button.setAttribute("data-village-id", villageId);
+    
+                    tooltipText.innerHTML = `
+                        <strong>${formatted}</strong><br>
+                        <em>ID: ${villageId}</em><br>
+                        Population: ${population}<br>
+                        Structures: ${structures}<br>
+                        Coordinates: (${x}, ${y})
+                    `;
+    
                     tooltip.style.left = `${left}px`;
                     tooltip.style.top = `${top}px`;
                     tooltip.style.display = "block";
-
-                    // Button logic
+    
                     button.style.left = `${btnLeft}px`;
                     button.style.top = `${btnTop}px`;
                     button.style.display = "block";
                 });
-
+    
                 img.addEventListener("mouseleave", () => {
                     setTimeout(() => {
                         if (!button.matches(":hover")) {
@@ -285,85 +331,58 @@
                     tooltip.style.display = "none";
                 });
             });
-
-
+    
             button.addEventListener("mouseleave", () => {
                 button.style.display = "none";
             });
-
-            // Optional: what happens when you click the button
+    
             button.addEventListener("click", () => {
-                alert("Visiting the village!");
+                const villageId = button.dataset.villageId;
+                console.log("Redirecting to village ID:", villageId);
+                window.location.href = "/village/" + villageId;
             });
 
 
-
-            const map = document.getElementById('map');
-            const wrapper = document.getElementById('map-wrapper');
-            const spyglass = document.getElementById('spyglass-overlay');
-
-            let zoomedIn = false;
-            const zoomFactor = 4.8;
-            let zoomOrigin = { x: 0, y: 0 };
-
-            const initialScroll = {
-                left: wrapper.scrollLeft,
-                top: wrapper.scrollTop
-            };
-
-
+    
             function updateSpyglassPosition(x, y) {
                 const wrapperRect = wrapper.getBoundingClientRect();
                 const mapRect = map.getBoundingClientRect();
-
-                // Convert map coordinates to screen coordinates
                 const screenX = x - wrapper.scrollLeft + mapRect.left;
                 const screenY = y - wrapper.scrollTop + mapRect.top;
-
-                // Your exact offsets
+    
                 spyglass.style.left = `${screenX - 60}px`;
                 spyglass.style.top = `${screenY - 10}px`;
-
                 spyglass.style.width = '65px';
                 spyglass.style.height = 'auto';
                 spyglass.style.transform = `scale(${zoomFactor})`;
             }
-
-
-
+    
             map.addEventListener('dblclick', (e) => {
                 const rect = map.getBoundingClientRect();
                 const x = e.clientX - rect.left + wrapper.scrollLeft;
                 const y = e.clientY - rect.top + wrapper.scrollTop;
-
+    
                 zoomedIn = !zoomedIn;
-
+    
                 document.addEventListener('mousemove', (e) => {
                     if (zoomedIn) {
-                        const spyglassSize = 120; // Or match your image's width
-                        const offsetX = spyglassSize / 2;
-                        const offsetY = spyglassSize / 2;
-
+                        const offsetX = 60;
+                        const offsetY = 60;
                         spyglass.style.left = `${e.clientX - offsetX}px`;
                         spyglass.style.top = `${e.clientY - offsetY}px`;
                     }
                 });
-
-
+    
                 if (zoomedIn) {
                     zoomOrigin = { x, y };
                     map.style.transformOrigin = `${x}px ${y}px`;
                     map.style.transform = `scale(${zoomFactor})`;
-
-                    // Position and scale the spyglass at the zoom origin
                     spyglass.style.opacity = '1';
                     updateSpyglassPosition(x, y);
-
-
                 } else {
                     map.style.transformOrigin = `${zoomOrigin.x}px ${zoomOrigin.y}px`;
                     map.style.transform = `scale(1)`;
-
+    
                     setTimeout(() => {
                         wrapper.scrollTo({
                             left: initialScroll.left,
@@ -374,7 +393,7 @@
                     }, 900);
                 }
             });
-
+    
             wrapper.addEventListener('scroll', () => {
                 if (zoomedIn) {
                     const rect = map.getBoundingClientRect();
@@ -383,18 +402,14 @@
                     updateSpyglassPosition(x, y);
                 }
             });
-
-            document.addEventListener('gesturestart', function (e) {
-                e.preventDefault();
-            });
-
-            document.addEventListener('wheel', function (e) {
-                if (e.ctrlKey) {
-                    e.preventDefault();
-                }
+    
+            document.addEventListener('gesturestart', (e) => e.preventDefault());
+            document.addEventListener('wheel', (e) => {
+                if (e.ctrlKey) e.preventDefault();
             }, { passive: false });
         });
     </script>
+    
 </body>
 
 </html>

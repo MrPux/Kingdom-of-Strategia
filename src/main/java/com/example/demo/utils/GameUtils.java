@@ -6,6 +6,8 @@ package com.example.demo.utils;
 import com.example.demo.classes.Mountain;
 import com.example.demo.classes.Village;
 
+import java.util.Random;
+
 /**
  * This class provides general utility functions for the game, such as distance calculation and intersection checks.
  */
@@ -22,7 +24,10 @@ public class GameUtils {
         // Calculate the difference in y-coordinates between the two villages.
         int deltaY = village1.getYCoordinate() - village2.getYCoordinate();
         // Calculate the Euclidean distance using the Pythagorean theorem.
-        return (int) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        int distance = (int) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        Random rand = new Random();
+        int randomFactor = rand.nextInt(50); // Add a random number between 0 and 49
+        return distance + randomFactor;
     }
 
     /**

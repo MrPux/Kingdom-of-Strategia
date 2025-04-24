@@ -1,0 +1,33 @@
+Game Goal:
+The goal of Kingdom of Strategia is to build and manage villages, connect them with roads, defend them from enemies, and expand your kingdom.
+
+File Summary:
+
+- src/main/java/com/example/demo/GameApplication.java:
+  This is the main entry point of the Spring Boot application. It initializes and starts the application.
+- src/main/java/com/example/demo/classes/Enemy.java:
+  Defines the Enemy class, representing an enemy unit with coordinates, level, and sprite.
+- src/main/java/com/example/demo/classes/Mountain.java:
+  Defines the Mountain class, representing a mountain on the map with coordinates and sprite.
+- src/main/java/com/example/demo/classes/Road.java:
+  Defines the Road class, representing a road connecting two villages with a weight.
+- src/main/java/com/example/demo/classes/Village.java:
+  Defines the Village class, representing a village on the map with coordinates, id, and sprite.
+- src/main/java/com/example/demo/controllers/ClickController.java:
+  Handles click events on the map (currently empty).
+- src/main/java/com/example/demo/controllers/MyController.java:
+  Handles HTTP requests and prepares data for the view (index.html).
+- src/main/java/com/example/demo/mechanics/generation/GameMap.java:
+  Defines the GameMap class, which holds lists of villages, roads, and mountains.
+- src/main/java/com/example/demo/mechanics/generation/GameMapGenerator.java:
+  Generates the game map, including villages, roads, and mountains.
+- src/main/java/com/example/demo/mechanics/pathfinding/MSTBuilder.java:
+  Builds a Minimum Spanning Tree (MST) to connect villages with roads.
+- src/main/java/com/example/demo/utils/GameUtils.java:
+  Provides utility functions for game logic, such as distance calculation and line intersection.
+- src/main/java/com/example/demo/utils/LinkedList.java:
+  A custom LinkedList implementation (not currently used).
+- src/main/java/com/example/demo/utils/SpriteLoader.java:
+  Loads sprite filenames from the classpath.
+- src/main/resources/templates/index.html:
+  The main Thymeleaf template for rendering the game map in the browser.

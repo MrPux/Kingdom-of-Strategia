@@ -17,17 +17,24 @@ public class Road {
      */
     private int weight;
 
-    // Constructor
+    private RoadType type; // NEW FIELD
+
+
+    // Constructors
+    public Road(Village from, Village to, int weight) {
+        this(from, to, weight, RoadType.NONE);
+    }
     /**
      * The Construction of this Road object requires the following variables for initalazing its instance variables.
      * @param fromVillage The village where the road originates.
      * @param toVillage The village where the road leads to.
      * @param weight The weight or cost of traversing the road.
      */
-    public Road(Village fromVillage, Village toVillage, int weight) {
+    public Road(Village fromVillage, Village toVillage, int weight, RoadType type) {
         this.fromVillage = fromVillage;
         this.toVillage = toVillage;
         this.weight = weight;
+        this.type = type;
     }
 
     // Getters
@@ -53,6 +60,10 @@ public class Road {
      */
     public int getWeight() {
         return this.weight;
+    }
+
+    public RoadType getType() {
+        return type;
     }
 
 

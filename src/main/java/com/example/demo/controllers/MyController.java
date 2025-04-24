@@ -8,28 +8,44 @@ import com.example.demo.mechanics.generation.GameMapGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * This controller handles requests and prepares data for the view.
  */
 @Controller
+@RequestMapping("/")
 public class MyController {
 
-    /**
-     * This method handles the '/hello' endpoint. When accessed, it generates a game map,
-     * adds the villages, roads, and mountains to the model, and returns the 'index' view to display the map.
-     * @param model The model to which the map data is added.
-     * @return The name of the view to be rendered.
-     */
+    private final GameMap map;
+
+    public MyController(GameMap map) {
+        this.map = map;
+    }
+
     @GetMapping("/hello")
     public String showMap(Model model) {
-        GameMap gameMap = GameMapGenerator.generateMap(model);
-        model.addAttribute("villages", gameMap.getVillages());
-        model.addAttribute("roads", gameMap.getRoads());
-        model.addAttribute("mountains", gameMap.getMountains());
-        System.out.println("Spawned enemies: " + gameMap.getEnemies().size());
-        model.addAttribute("enemies", gameMap.getEnemies());
-        model.addAttribute("startingVillage", model.getAttribute("startingVillage"));
+        if (map.getVillages().isEmpty()) {
+            GameMap fresh = GameMapGenerator.generateMap(); // No Model param
+            map.setVillages(fresh.getVillages());
+            map.setRoads(fresh.getRoads());
+            map.setMountains(fresh.getMountains());
+            map.setEnemies(fresh.getEnemies());
+            map.setStartingVillage(fresh.getStartingVillage());
+        }
+
+        model.addAttribute("villages", map.getVillages());
+        model.addAttribute("roads", map.getRoads());
+        model.addAttribute("mountains", map.getMountains());
+        model.addAttribute("enemies", map.getEnemies());
+        model.addAttribute("startingVillage", map.getStartingVillage());
         return "index";
+    }
+
+    @PostMapping("/empty")
+    public String emptyMap() {
+        map.clearMap();
+        return "redirect:/hello";
     }
 }

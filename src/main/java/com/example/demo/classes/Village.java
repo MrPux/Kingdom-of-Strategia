@@ -3,11 +3,22 @@
  */
 package com.example.demo.classes;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 public class Village {
     /**
      * The name of the village.
      */
     private String name;
+        /**
+     * The unique identifier of the village.
+     */
+    private int id;
+
+    private int population;
+
+    private int structures;
     /**
      * The x-coordinate of the village.
      */
@@ -17,30 +28,77 @@ public class Village {
      */
     private int yCoordinate;
     /**
-     * The unique identifier of the village.
-     */
-    private int id;
-    /**
      * The sprite or image representing the village.
      */
     private String sprite;
+    
+    private VillageType type;
+    
 
-    // Constructor
-    /**
-     * Constructs the Village Object based on the following required variablees for initialization of Villagee instance variables.
-     * @param name The name of the village.
-     * @param id The unique identifier of the village.
-     * @param xCoordinate The x-coordinate of the village.
-     * @param yCoordinate The y-coordinate of the village.
-     * @param sprite The sprite or image representing the village.
-     */
-    public Village(String name, int id, int xCoordinate, int yCoordinate, String sprite) {
+    private int knights;
+    private int laborers;
+    private int wood;
+    private int food;
+    private int iron;
+    private int coal;
+    private int rocks; 
+    
+    // Include VillageType in your constructor
+    public Village(String name, int id, int population, int structures, int x, int y, String sprite, VillageType type) {
         this.name = name;
         this.id = id;
-        this.xCoordinate = xCoordinate;
-        this.yCoordinate = yCoordinate;
+        this.population = population;
+        this.structures = structures;
+        this.xCoordinate = x;
+        this.yCoordinate = y;
         this.sprite = sprite;
+        this.type = type;
+    
+        // Default or based on type
+        assignResourcesByType(type);
     }
+    
+    private void assignResourcesByType(VillageType type) {
+        switch (type) {
+            case COMMON:
+                this.knights = 2;
+                this.laborers = 2;
+                this.wood = 5;
+                this.food = 5;
+                this.iron = 2;
+                this.coal = 2;
+                this.rocks = 3; 
+                break;
+            case TIMBER:
+                this.knights = 3;
+                this.laborers = 4;
+                this.wood = 20;
+                this.food = 6;
+                this.iron = 2;
+                this.coal = 2;
+                this.rocks = 2; 
+                break;
+            case ARMOR:
+                this.knights = 15;
+                this.laborers = 5;
+                this.wood = 6;
+                this.food = 5;
+                this.iron = 10;
+                this.coal = 8;
+                this.rocks = 5; 
+                break;
+            case COMPOSITE:
+                this.knights = 12;
+                this.laborers = 8;
+                this.wood = 15;
+                this.food = 10;
+                this.iron = 10;
+                this.coal = 10;
+                this.rocks = 10; 
+                break;
+        }
+    }
+    
 
     // Getters
     /**
@@ -113,6 +171,60 @@ public class Village {
     public void setYCoordinate(int yCoordinate) {
         this.yCoordinate = yCoordinate;
     }
+    public int getPopulation() {
+        return population;
+    }
+    
+    public int getStructures() {
+        return structures;
+    }
+
+    public int getKnights() {
+        return knights;
+    }
+
+    public int getLaborers() {
+        return laborers;
+    }
+
+    public int getWood() {
+        return wood;
+    }
+
+    public int getFood() {
+        return food;
+    }
+
+    public int getIron() {
+        return iron;
+    }
+
+    public int getCoal() {
+        return coal;
+    }
+
+    public int getRocks() {
+        return rocks;
+    }
+ 
+    
+    public String getFormattedName() {
+        String base = sprite.substring(sprite.lastIndexOf("/") + 1).replace(".png", "");
+        return Arrays.stream(base.split("[-_]"))
+                    .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
+                    .collect(Collectors.joining(" "));
+    }
+
+
+
+
+public VillageType getType() {
+    return type;
+}
+
+public void setType(VillageType type) {
+    this.type = type;
+}
 
     /**
      * Overrides the equals method to compare two Village objects.
