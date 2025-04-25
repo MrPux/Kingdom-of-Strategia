@@ -1,5 +1,5 @@
 /**
- * As the main application class, I am responsible for initiating the Spring Boot application.
+ * The main application class, responsible for initiating the Spring Boot application.
  */
 package com.example.demo;
 

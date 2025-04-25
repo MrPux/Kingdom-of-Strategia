@@ -5,6 +5,7 @@ package com.example.demo.classes;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.Random;
 
 public class Village {
     /**
@@ -36,7 +37,7 @@ public class Village {
     
 
     private int knights;
-    private int laborers;
+    private int villagers;
     private int wood;
     private int food;
     private int iron;
@@ -44,10 +45,9 @@ public class Village {
     private int rocks; 
     
     // Include VillageType in your constructor
-    public Village(String name, int id, int population, int structures, int x, int y, String sprite, VillageType type) {
+    public Village(String name, int id, int structures, int x, int y, String sprite, VillageType type) {
         this.name = name;
-        this.id = id;
-        this.population = population;
+        this.id = id; 
         this.structures = structures;
         this.xCoordinate = x;
         this.yCoordinate = y;
@@ -56,48 +56,57 @@ public class Village {
     
         // Default or based on type
         assignResourcesByType(type);
+        this.population = this.villagers + this.knights;
     }
     
     private void assignResourcesByType(VillageType type) {
+        Random rand = new Random();
+    
         switch (type) {
             case COMMON:
-                this.knights = 2;
-                this.laborers = 2;
-                this.wood = 5;
-                this.food = 5;
-                this.iron = 2;
-                this.coal = 2;
-                this.rocks = 3; 
+                this.knights = rand.nextInt(4) + 4;       // 4–7
+                this.villagers = rand.nextInt(5) + 5;     // 5–9
+                this.wood = rand.nextInt(5) + 6;          // 6–10
+                this.food = rand.nextInt(4) + 6;          // 6–9
+                this.iron = rand.nextInt(3) + 4;          // 4–6
+                this.coal = rand.nextInt(2) + 4;          // 4–5
+                this.rocks = rand.nextInt(4) + 4;         // 4–7
                 break;
+
             case TIMBER:
-                this.knights = 3;
-                this.laborers = 4;
-                this.wood = 20;
-                this.food = 6;
-                this.iron = 2;
-                this.coal = 2;
-                this.rocks = 2; 
+                this.knights = rand.nextInt(3) + 4;       // 4–6 — not meant for fighting
+                this.villagers = rand.nextInt(4) + 6;     // 6–9 — good workforce
+                this.wood = rand.nextInt(15) + 15;        // 15–29 — lots of wood!
+                this.food = rand.nextInt(4) + 6;          // 6–9 — moderate
+                this.iron = rand.nextInt(2) + 4;          // 4–5 — low
+                this.coal = rand.nextInt(2) + 4;          // 4–5 — low
+                this.rocks = rand.nextInt(3) + 4;         // 4–6 — moderate
                 break;
-            case ARMOR:
-                this.knights = 15;
-                this.laborers = 5;
-                this.wood = 6;
-                this.food = 5;
-                this.iron = 10;
-                this.coal = 8;
-                this.rocks = 5; 
-                break;
+    
+                case ARMOR:
+                    this.knights = rand.nextInt(8) + 18;      // 18–25 — strong military
+                    this.villagers = rand.nextInt(4) + 6;     // 6–9 — support staff
+                    this.wood = rand.nextInt(3) + 4;          // 4–6 — not many trees
+                    this.food = rand.nextInt(3) + 4;          // 4–6 — must import food
+                    this.iron = rand.nextInt(6) + 10;         // 10–15 — weapon grade
+                    this.coal = rand.nextInt(5) + 8;          // 8–12 — for forging
+                    this.rocks = rand.nextInt(4) + 6;         // 6–9 — for walls/forts
+                    break;
+    
             case COMPOSITE:
-                this.knights = 12;
-                this.laborers = 8;
-                this.wood = 15;
-                this.food = 10;
-                this.iron = 10;
-                this.coal = 10;
-                this.rocks = 10; 
+                this.knights = rand.nextInt(9) + 20;     // 20–28
+                this.villagers = rand.nextInt(9) + 20;
+                this.wood = rand.nextInt(9) + 20;
+                this.food = rand.nextInt(9) + 20;
+                this.iron = rand.nextInt(9) + 20;
+                this.coal = rand.nextInt(9) + 20;
+                this.rocks = rand.nextInt(9) + 20;
                 break;
         }
+    
+        this.population = this.knights + this.villagers;
     }
+    
     
 
     // Getters
@@ -183,8 +192,8 @@ public class Village {
         return knights;
     }
 
-    public int getLaborers() {
-        return laborers;
+    public int getVillagers() {
+        return this.villagers;
     }
 
     public int getWood() {

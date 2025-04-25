@@ -67,7 +67,9 @@
     </header> -->
 
 <div class="village-card">
+
     <h1 th:text="${village.formattedName}">Village Name</h1>
+    <img th:src="@{${village.sprite}}" alt="Village Sprite" />
     <p><strong>Population:</strong> <span th:text="${village.population}">0</span></p>
     <p><strong>Structures:</strong> <span th:text="${village.structures}">0</span></p>
     <p><strong>Coordinates:</strong> 
@@ -82,7 +84,7 @@
     <p><strong>Rocks:</strong> <span th:text="${village.rocks}">0</span></p>
     <p><strong>Iron:</strong> <span th:text="${village.iron}">0</span></p>
     <p><strong>Coal:</strong> <span th:text="${village.coal}">0</span></p>
-    <p><strong>Laborers:</strong> <span th:text="${village.laborers}">0</span></p>
+    <p><strong>Villagers:</strong> <span th:text="${village.villagers}">0</span></p>
     <p><strong>Knights:</strong> <span th:text="${village.knights}">0</span></p>
     
 

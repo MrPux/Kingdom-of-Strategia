@@ -2,140 +2,32 @@
 <html lang="en">
 
 <head>
+    <!-- Metadata for the HTML document -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Kingdom of Strategia</title>
 
-    <style>
-        header {
-            height: 50px;
-            background-color: black;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        header h1 {
-            margin: 0;
-            padding: 0;
-            color: white;
-        }
-
-        html,
-        body {
-            width: 100%;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-            font-family: sans-serif;
-        }
-
-        #container {
-            display: flex;
-            flex-direction: row;
-            width: 100vw;
-            height: auto;
-        }
-
-        #map-wrapper {
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-        }
-
-        #map {
-            position: relative;
-            width: 2000px;
-            height: 2000px;
-            background-color: #e8e8e8;
-            background-image:
-                linear-gradient(to right, #ccc 1px, transparent 1px),
-                linear-gradient(to bottom, #ccc 1px, transparent 1px);
-            background-size: 50px 50px;
-            transition: transform 0.9s ease;
-        }
-
-        #spyglass-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            object-fit: contain;
-            pointer-events: none;
-            z-index: 100;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
-
-        #sidebar {
-            width: auto;
-            box-sizing: border-box;
-            height: 100vh;
-            background-color: #009a7e;
-            padding: 15px;
-            overflow-y: auto;
-            color: white;
-            z-index: 1000;
-        }
-        #village-tooltip {
-    padding: 10px 14px;
-    font-size: 13px;
-    background-color: rgba(0, 0, 0, 0.8);
-    border-radius: 8px;
-    line-height: 1.4;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
-}
-
-
-        svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        img {
-            position: absolute;
-            z-index: 2;
-        }
-
-        ul {
-            padding-left: 20px;
-        }
-
-        .enemy {
-        position: absolute;
-        transform: translate(-50%, -50%); /* this centers the div at the x,y */
-    }
-
-    .enemy-sprite {
-        display: block;
-        max-width: 100%;
-        height: auto;
-    }
-
-
-        /* Binocular overlay */
-    </style>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
 
+    <!-- Header Section -->
     <header>
         <nav>
             <h1>Kingdom of Strategia</h1>
         </nav>
     </header>
+
+    <!-- Main Container -->
     <div id="container">
 
+        <!-- Map Wrapper -->
         <div id="map-wrapper">
+            <!-- Map Area -->
             <div id="map">
 
+                <!-- Village Action Button -->
                 <button id="village-action-btn" style="
                     position: absolute;
                     z-index: 10;
@@ -150,6 +42,7 @@
                     View
                 </button>
 
+                <!-- Village Tooltip -->
                 <div id="village-tooltip" style="
                     position: absolute;
                     display: none;
@@ -176,7 +69,27 @@
                     "></div>
                 </div>
 
+                <!-- Enemy Tooltip -->
+                <div id="enemy-tooltip" style="
+                    position: absolute;
+                    display: none;
+                    padding: 6px 10px;
+                    background-color: rgba(180, 0, 0, 0.85);
+                    color: white;
+                    font-size: 13px;
+                    border-radius: 6px;
+                    white-space: nowrap;
+                    transform: translate(-50%, -100%);
+                    z-index: 11;
+                    pointer-events: none;
+                    box-shadow: 0 0 6px rgba(0,0,0,0.3);
+                ">
+                    <span id="enemy-tooltip-text">Lvl 1</span>
+                </div>
 
+
+
+                <!-- Game Lines (Roads) -->
                 <svg id="game-lines">
                     <th:block th:each="road : ${roads}">
                         <th:block th:if="${road != null and road.fromVillage != null and road.toVillage != null}">
@@ -195,31 +108,29 @@
                 <th:block th:each="mountain : ${mountains}">
                     <img th:src="@{/assets/mountains/{file}(file=${mountain.sprite})}"
                         th:style="'left: ' + ${mountain.XCoordinate} + 'px; top: ' + ${mountain.YCoordinate} + 'px;'"
-                        width="60" height="60"/>
+                        width="60" height="60" />
 
                 </th:block>
 
                 <!-- Villages -->
                 <th:block th:each="village : ${villages}">
-                    <img class="village-img"
-                    th:src="@{${village.sprite}}"
-                    th:data-village-id="${village.id}"
-                    th:data-population="${village.population}"
-                    th:data-structures="${village.structures}"
-                    th:data-x="${village.xCoordinate}"
-                    th:data-y="${village.yCoordinate}"
-                    th:style="'left: ' + ${village.XCoordinate} + 'px; top: ' + ${village.YCoordinate} + 'px;' + (${village.id == startingVillage.id} ? 'border: 5px solid green;' : '')"
-                    width="60" height="50" />
-               
+                    <img class="village-img" th:src="@{${village.sprite}}" th:data-village-id="${village.id}"
+                        th:data-population="${village.population}" th:data-structures="${village.structures}"
+                        th:data-x="${village.xCoordinate}" th:data-y="${village.yCoordinate}"
+                        th:style="'left: ' + ${village.XCoordinate} + 'px; top: ' + ${village.YCoordinate} + 'px;' + (${village.id == startingVillage.id} ? 'border: 5px solid green;' : '')"
+                        width="60" height="50" />
+
                 </th:block>
 
                 <!-- Enemies -->
-            <!-- Corrected enemy rendering block -->
-            <th:block th:each="enemy : ${enemies}">
-                <img th:src="@{/assets/enemies/{file}(file=${enemy.sprite})}"
-                    th:style="'left: ' + ${enemy.xCoordinate} + 'px; top: ' + ${enemy.yCoordinate} + 'px;'"
-                    width="30" height="30" />
-            </th:block>
+                <!-- Corrected enemy rendering block -->
+                <th:block th:each="enemy : ${enemies}">
+                    <img class="enemy-img" th:src="@{/assets/enemies/{file}(file=${enemy.sprite})}"
+                        th:data-level="${enemy.level}"
+                        th:style="'left: ' + ${enemy.xCoordinate} + 'px; top: ' + ${enemy.yCoordinate} + 'px;'"
+                        width="30" height="30" />
+                </th:block>
+
 
 
 
@@ -228,6 +139,7 @@
             </div>
         </div>
 
+        <!-- Sidebar -->
         <div id="sidebar">
             <h2>Controls</h2>
             <h5>ZOOM IN - double click</h5>
@@ -244,172 +156,11 @@
             </ul>
         </div>
     </div>
-<!--  -->
+    <!--  -->
 
-    <script>
-        window.addEventListener('load', () => {
-            const map = document.getElementById('map');
-            const button = document.getElementById("village-action-btn");
-            const villageImgs = document.querySelectorAll(".village-img");
-            const tooltip = document.getElementById("village-tooltip");
-            const tooltipText = document.getElementById("tooltip-text");
-            const wrapper = document.getElementById('map-wrapper');
-            const spyglass = document.getElementById('spyglass-overlay');
-    
-            let zoomedIn = false;
-            const zoomFactor = 4.8;
-            let zoomOrigin = { x: 0, y: 0 };
-    
-            const initialScroll = {
-                left: wrapper.scrollLeft,
-                top: wrapper.scrollTop
-            };
-    
-            button.addEventListener("mouseenter", () => {
-                button.style.backgroundColor = "rgba(0, 102, 110, 0.517)";
-                button.style.color = "white";
-            });
-    
-            button.addEventListener("mouseleave", () => {
-                button.style.backgroundColor = "rgba(66, 66, 66, 0.517)";
-                button.style.color = "white";
-                button.style.display = "none";
-            });
-    
-            villageImgs.forEach(img => {
-                img.addEventListener("mouseenter", () => {
-                    const rect = img.getBoundingClientRect();
-                    const mapRect = map.getBoundingClientRect();
-    
-                    const left = rect.left - mapRect.left + img.offsetWidth / 2;
-                    const top = rect.top - mapRect.top - 10;
-                    const btnLeft = left - 25;
-                    const btnTop = top + img.offsetHeight + 10;
-    
-                    const src = img.getAttribute("src");
-                    const fileName = src.split("/").pop().replace(".png", "");
-                    const formatted = fileName.replace(/[-_]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-    
-                    const population = img.dataset.population;
-                    const structures = img.dataset.structures;
-                    const x = img.dataset.x;
-                    const y = img.dataset.y;
-                    const villageId = img.dataset.villageId;
+    <!-- JavaScript Section -->
+    <script th:src="@{/js/index.js}"></script>
 
-                    button.dataset.villageId = villageId;
-                    button.dataset.population = population;
-                    button.dataset.structures = structures;
-                    button.dataset.name = formatted;
-
-
-                    // ✅ Attach village ID to the button
-                    button.setAttribute("data-village-id", villageId);
-    
-                    tooltipText.innerHTML = `
-                        <strong>${formatted}</strong><br>
-                        <em>ID: ${villageId}</em><br>
-                        Population: ${population}<br>
-                        Structures: ${structures}<br>
-                        Coordinates: (${x}, ${y})
-                    `;
-    
-                    tooltip.style.left = `${left}px`;
-                    tooltip.style.top = `${top}px`;
-                    tooltip.style.display = "block";
-    
-                    button.style.left = `${btnLeft}px`;
-                    button.style.top = `${btnTop}px`;
-                    button.style.display = "block";
-                });
-    
-                img.addEventListener("mouseleave", () => {
-                    setTimeout(() => {
-                        if (!button.matches(":hover")) {
-                            button.style.display = "none";
-                        }
-                    }, 200);
-                    tooltip.style.display = "none";
-                });
-            });
-    
-            button.addEventListener("mouseleave", () => {
-                button.style.display = "none";
-            });
-    
-            button.addEventListener("click", () => {
-                const villageId = button.dataset.villageId;
-                console.log("Redirecting to village ID:", villageId);
-                window.location.href = "/village/" + villageId;
-            });
-
-
-    
-            function updateSpyglassPosition(x, y) {
-                const wrapperRect = wrapper.getBoundingClientRect();
-                const mapRect = map.getBoundingClientRect();
-                const screenX = x - wrapper.scrollLeft + mapRect.left;
-                const screenY = y - wrapper.scrollTop + mapRect.top;
-    
-                spyglass.style.left = `${screenX - 60}px`;
-                spyglass.style.top = `${screenY - 10}px`;
-                spyglass.style.width = '65px';
-                spyglass.style.height = 'auto';
-                spyglass.style.transform = `scale(${zoomFactor})`;
-            }
-    
-            map.addEventListener('dblclick', (e) => {
-                const rect = map.getBoundingClientRect();
-                const x = e.clientX - rect.left + wrapper.scrollLeft;
-                const y = e.clientY - rect.top + wrapper.scrollTop;
-    
-                zoomedIn = !zoomedIn;
-    
-                document.addEventListener('mousemove', (e) => {
-                    if (zoomedIn) {
-                        const offsetX = 60;
-                        const offsetY = 60;
-                        spyglass.style.left = `${e.clientX - offsetX}px`;
-                        spyglass.style.top = `${e.clientY - offsetY}px`;
-                    }
-                });
-    
-                if (zoomedIn) {
-                    zoomOrigin = { x, y };
-                    map.style.transformOrigin = `${x}px ${y}px`;
-                    map.style.transform = `scale(${zoomFactor})`;
-                    spyglass.style.opacity = '1';
-                    updateSpyglassPosition(x, y);
-                } else {
-                    map.style.transformOrigin = `${zoomOrigin.x}px ${zoomOrigin.y}px`;
-                    map.style.transform = `scale(1)`;
-    
-                    setTimeout(() => {
-                        wrapper.scrollTo({
-                            left: initialScroll.left,
-                            top: initialScroll.top,
-                            behavior: 'smooth'
-                        });
-                        spyglass.style.opacity = '0';
-                    }, 900);
-                }
-            });
-    
-            wrapper.addEventListener('scroll', () => {
-                if (zoomedIn) {
-                    const rect = map.getBoundingClientRect();
-                    const x = zoomOrigin.x + wrapper.scrollLeft - rect.left;
-                    const y = zoomOrigin.y + wrapper.scrollTop - rect.top;
-                    updateSpyglassPosition(x, y);
-                }
-            });
-    
-            document.addEventListener('gesturestart', (e) => e.preventDefault());
-            document.addEventListener('wheel', (e) => {
-                if (e.ctrlKey) e.preventDefault();
-            }, { passive: false });
-        });
-    </script>
-    
 </body>
 
 </html>
