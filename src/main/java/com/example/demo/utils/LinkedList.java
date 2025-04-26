@@ -3,13 +3,20 @@
  */
 package com.example.demo.utils;
 
-public class LinkedList<T>{
+/**
+ * Represents a generic linked list data structure.
+ *
+ * @param <T> The type of data stored in the linked list.
+ */
+public class LinkedList<T> {
     // LinkedList Instance variable
     private Node<T> head;
     private int size = 0;
 
     /**
      * A Class of Type Node that holds data and a pointer reference.
+     *
+     * @param <T> The type of data stored in the node.
      */
     public class Node<T>
     {
@@ -114,6 +121,11 @@ public class LinkedList<T>{
         return tempNode.getData();
     }
 
+    /**
+     * Returns a string representation of the linked list.
+     *
+     * @return A string representation of the linked list.
+     */
     @Override
     public String toString()
     {

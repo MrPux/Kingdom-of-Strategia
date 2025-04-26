@@ -1,155 +1,183 @@
 package com.example.demo.utils;
 
+import com.example.demo.classes.villageClasses.VillageType;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.Collections; // Import Collections
+import java.util.Random;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * A utility class responsible for loading sprite filenames from the classpath.
- * This class provides methods to load both village and mountain sprite filenames,
- * and handles potential IOExceptions during the loading process.
+ * This class provides methods to load village, mountain, enemy, and structure sprites.
  */
 public class SpriteLoader {
- 
-    private static final String ENEMY_SPRITE_PATH = "classpath:/static/assets/enemies/";
 
-    /**
-     * Logger for this class, used for logging messages and debugging.
-     */
     private static final Logger logger = LoggerFactory.getLogger(SpriteLoader.class);
 
-    /**
-     * A list of village sprite filenames.
-     * This list is populated during class initialization by the {@link #loadVillageSprites()} method.
-     */
+    // Path constants
+    private static final String VILLAGE_SPRITE_PATH = "classpath:/static/assets/villages/";
+    private static final String MOUNTAIN_SPRITE_PATH = "classpath:/static/assets/mountains/";
+    private static final String ENEMY_SPRITE_PATH = "classpath:/static/assets/enemies/";
+    private static final String STRUCTURE_BASE_PATH = "classpath:/static/assets/structures/";
+
+    // Lists of loaded sprites
     public static final List<String> VILLAGE_SPRITES;
-
-    /**
-     * A list of enemy sprite filenames.
-     * This list is populated during class initialization by the {@link #loadEnemySprites()} method.
-     */
-    public static final List<String> ENEMY_SPRITES;
-
-    /**
-     * A list of mountain sprite filenames.
-     * This list is populated during class initialization by the {@link #loadMountainSprites()} method.
-     */
     public static final List<String> MOUNTAIN_SPRITES;
+    public static final List<String> ENEMY_SPRITES;
+    // Structure lists per village type
+    public static final List<String> COMMON_STRUCTURE_SPRITES;
+    public static final List<String> TIMBER_STRUCTURE_SPRITES;
+    public static final List<String> ARMOR_STRUCTURE_SPRITES;
+    public static final List<String> COMPOSITE_STRUCTURE_SPRITES;
 
-    /**
-     * Static initializer block that is executed when the class is loaded.
-     */
+    private static final Random rand = new Random();
+
+    // Static block: Load all sprites once at application startup
     static {
-        VILLAGE_SPRITES = loadVillageSprites();
-        MOUNTAIN_SPRITES = loadMountainSprites();
-        ENEMY_SPRITES = loadEnemySprites();
+        VILLAGE_SPRITES = loadSprites(VILLAGE_SPRITE_PATH);
+        MOUNTAIN_SPRITES = loadSprites(MOUNTAIN_SPRITE_PATH);
+        ENEMY_SPRITES = loadSprites(ENEMY_SPRITE_PATH);
+
+        COMMON_STRUCTURE_SPRITES = loadSprites(STRUCTURE_BASE_PATH + "CommonVillage-Houses/");
+        TIMBER_STRUCTURE_SPRITES = loadSprites(STRUCTURE_BASE_PATH + "TimberVillage-Houses/");
+        ARMOR_STRUCTURE_SPRITES = loadSprites(STRUCTURE_BASE_PATH + "ArmorVillage-Houses/");
+        COMPOSITE_STRUCTURE_SPRITES = loadSprites(STRUCTURE_BASE_PATH + "CompositeVillage-Houses/");
     }
 
- /**
-     * Loads the village sprite filenames from the classpath.
-     * This method uses a {@link ResourcePatternResolver} to find all PNG files in the
-     * "classpath:/static/assets/villages/" directory and adds them to a list.
-     * It also ensures that "commonVillage.png" is present and adds it multiple times
-     * to increase its probability of being selected.
-     * @return A list of village sprite filenames.
+    /**
+     * Generic method to load sprite filenames from a given path.
+     *
+     * @param path The path to load sprites from.
+     * @return A list of sprite filenames.
      */
-    private static List<String> loadVillageSprites() {
-        // ResourcePatternResolver to find resources in the classpath
-        final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-        // List to store the filenames
-        final List<String> filenames = new ArrayList<>();
+    private static List<String> loadSprites(String path) {
+        ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        List<String> filenames = new ArrayList<>();
+    
         try {
-            // Get all resources matching the pattern "classpath:/static/assets/villages/*.png"
-            final Resource[] resources = resourcePatternResolver.getResources("classpath:/static/assets/villages/*.png");
-            // Convert the resources to a list of filenames
-            resourcesToList(resources, filenames);
-
-            // Ensure "commonVillage.png" is present, then add it multiple times to increase its probability
-            if (filenames.contains("commonVillage.png")) {
-                // Number of times to add "commonVillage.png"
-                final int commonVillageCount = 3;
-                // Add "commonVillage.png" multiple times to increase its probability
-                for (int i = 0; i < commonVillageCount; i++) {
-                    filenames.add("commonVillage.png");
+            Resource[] resources = resolver.getResources(path + "*.png");
+            for (Resource resource : resources) {
+                String filename = resource.getFilename();
+                if (filename != null && !filename.toLowerCase().contains("fountain")) { // 🚫 Skip fountains
+                    filenames.add(filename);
+                    logger.info("Loaded sprite: {} from {}", filename, path);
+                } else {
+                    logger.info("Excluded fountain sprite: {} from {}", filename, path);
                 }
-                // Shuffle the list to randomize the order of the sprites
-                Collections.shuffle(filenames);
-            } else {
-                // Log a warning if "commonVillage.png" is not found in the directory
-                logger.warn("commonVillage.png not found in the village sprites directory!");
             }
-
-        } catch (IOException e) {
-            // Log an error if there was an issue loading the village sprites
-            logger.error("Error loading village sprites", e);
-            // Consider rethrowing as a RuntimeException if the application cannot function without these sprites
-        }
-        // Return the list of filenames
-        return filenames;
-    }
-    /**
-     * Loads the mountain sprite filenames from the classpath.
-     * This method uses a {@link ResourcePatternResolver} to find all PNG files in the
-     * "classpath:/static/assets/mountains/" directory and adds them to a list.
-     * @return A list of mountain sprite filenames.
-     */
-    private static List<String> loadMountainSprites() {
-        // ResourcePatternResolver to find resources in the classpath
-        final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-        // List to store the filenames
-        List<String> filenames = new ArrayList<>();
-        try {
-            // Get all resources matching the pattern "classpath:/static/assets/mountains/*.png"
-            Resource[] resources = resourcePatternResolver.getResources("classpath:/static/assets/mountains/*.png");
-            // Convert the resources to a list of filenames
-            resourcesToList(resources, filenames);
-            // Shuffle the list to randomize the order of the sprites
-            Collections.shuffle(filenames);
-
-        } catch (IOException e) {
-            // Log an error if there was an issue loading the mountain sprites
-            logger.error("Error loading mountain sprites", e);
-            // Consider rethrowing as a RuntimeException if the application cannot function without these sprites
-        }
-        // Return the list of filenames
-        return filenames;
-    }
-
-    /**
-     * Loads the enemy sprite filenames from the classpath.
-     * @return A list of enemy sprite filenames.
-     */
-    private static List<String> loadEnemySprites() {
-        final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-        List<String> filenames = new ArrayList<>();
-        try {
-            Resource[] resources = resourcePatternResolver.getResources( ENEMY_SPRITE_PATH + "*.png");
-            resourcesToList(resources, filenames);
             Collections.shuffle(filenames);
         } catch (IOException e) {
-            logger.error("Error loading enemy sprites", e);
+            logger.error("Error loading sprites from path: " + path, e);
         }
+    
         return filenames;
+    }
+    
+
+    /**
+     * Picks a random village sprite.
+     *
+     * @return full path to a random village sprite.
+     */
+    public static String getRandomVillageSprite() {
+        if (VILLAGE_SPRITES.isEmpty()) {
+            logger.warn("No village sprites found!");
+            return "/assets/villages/defaultVillage.png"; // fallback
+        }
+        return "/assets/villages/" + VILLAGE_SPRITES.get(rand.nextInt(VILLAGE_SPRITES.size()));
     }
 
     /**
-     * Converts an array of resources to a list of filenames.
-     * @param resources The array of resources to convert.
-     * @param filenames The list to store the filenames.
-     * @throws IOException If there was an issue getting the filename from a resource.
+     * Picks a random mountain sprite.
+     *
+     * @return full path to a random mountain sprite.
      */
-    private static void resourcesToList(Resource[] resources, List<String> filenames) throws IOException {
-        for (Resource resource : resources) {
-            String filename = resource.getFilename();
-            logger.info("Loaded sprite: {}", filename);
-            filenames.add(filename);
+    public static String getRandomMountainSprite() {
+        if (MOUNTAIN_SPRITES.isEmpty()) {
+            logger.warn("No mountain sprites found!");
+            return "/assets/mountains/defaultMountain.png"; // fallback
         }
+        return "/assets/mountains/" + MOUNTAIN_SPRITES.get(rand.nextInt(MOUNTAIN_SPRITES.size()));
     }
+
+    /**
+     * Picks a random enemy sprite.
+     *
+     * @return full path to a random enemy sprite.
+     */
+    public static String getRandomEnemySprite() {
+        if (ENEMY_SPRITES.isEmpty()) {
+            logger.warn("No enemy sprites found!");
+            return "/assets/enemies/defaultEnemy.png"; // fallback
+        }
+        return "/assets/enemies/" + ENEMY_SPRITES.get(rand.nextInt(ENEMY_SPRITES.size()));
+    }
+
+    /**
+     * Picks a random structure sprite based on the village type.
+     *
+     * @param villageType the type of the village
+     * @return full path to a random structure sprite.
+     */
+    public static String getRandomStructureSprite(VillageType villageType) {
+        List<String> spriteList;
+
+        switch (villageType) {
+            case COMMON -> spriteList = COMMON_STRUCTURE_SPRITES;
+            case TIMBER -> spriteList = TIMBER_STRUCTURE_SPRITES;
+            case ARMOR -> spriteList = ARMOR_STRUCTURE_SPRITES;
+            case COMPOSITE -> spriteList = COMPOSITE_STRUCTURE_SPRITES;
+            default -> spriteList = COMMON_STRUCTURE_SPRITES; // fallback to common
+        }
+
+        if (spriteList.isEmpty()) {
+            logger.warn("No structure sprites found for type: {}", villageType);
+            return "/assets/structures/defaultStructure.png"; // fallback
+        }
+
+        String filename = spriteList.get(rand.nextInt(spriteList.size()));
+
+        // Match the correct folder name
+        String folderName = switch (villageType) {
+            case COMMON -> "CommonVillage-Houses";
+            case TIMBER -> "TimberVillage-Houses";
+            case ARMOR -> "ArmorVillage-Houses";
+            case COMPOSITE -> "CompositeVillage-Houses";
+        };
+
+        return "/assets/structures/" + folderName + "/" + filename;
+    }
+
+    /**
+     * Gets the fountain sprite path based on the village type.
+     * This sprite is excluded from the random house sprites.
+     *
+     * @param villageType The type of the village.
+     * @return The path to the fountain sprite.
+     */
+    public static String getFountainSprite(VillageType villageType) {
+        String folder = switch (villageType) {
+            case COMMON -> "CommonVillage-Houses";
+            case TIMBER -> "TimberVillage-Houses";
+            case ARMOR -> "ArmorVillage-Houses";
+            case COMPOSITE -> "CompositeVillage-Houses";
+        };
+        String filename = switch (villageType) {
+            case COMMON -> "CommonVillageFountain.png";
+            case TIMBER -> "TimberVillageFountain.png";
+            case ARMOR -> "ArmorVillageFountain.png";
+            case COMPOSITE -> "CompositeVillageFountain.png";
+        };
+        return "/assets/structures/" + folder + "/" + filename;
+    }
+    
+
 }

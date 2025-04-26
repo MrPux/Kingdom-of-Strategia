@@ -3,6 +3,12 @@
  */
 package com.example.demo.classes;
 
+import com.example.demo.classes.villageClasses.Village;
+
+/**
+ * Represents a road connecting two villages in the game world.
+ * This class encapsulates the properties of a road, such as the villages it connects, its weight, and its type.
+ */
 public class Road {
     /**
      * The village where the road originates.
@@ -21,14 +27,24 @@ public class Road {
 
 
     // Constructors
+
+    /**
+     * Constructs a Road object with a default road type.
+     *
+     * @param from The village where the road originates.
+     * @param to   The village where the road leads to.
+     * @param weight The weight or cost of traversing the road.
+     */
     public Road(Village from, Village to, int weight) {
         this(from, to, weight, RoadType.NONE);
     }
+
     /**
      * The Construction of this Road object requires the following variables for initalazing its instance variables.
+     *
      * @param fromVillage The village where the road originates.
-     * @param toVillage The village where the road leads to.
-     * @param weight The weight or cost of traversing the road.
+     * @param toVillage   The village where the road leads to.
+     * @param weight      The weight or cost of traversing the road.
      */
     public Road(Village fromVillage, Village toVillage, int weight, RoadType type) {
         this.fromVillage = fromVillage;
@@ -38,8 +54,10 @@ public class Road {
     }
 
     // Getters
+
     /**
      * Returns the Village where the road comes from.
+     *
      * @return Village
      */
     public Village getFromVillage() {
@@ -48,6 +66,7 @@ public class Road {
 
     /**
      * Returns the Village where the road heads towards.
+     *
      * @return toVillage
      */
     public Village getToVillage() {
@@ -56,12 +75,18 @@ public class Road {
 
     /**
      * Returns the weight of the road that are very important when traversing.
+     *
      * @return weight
      */
     public int getWeight() {
         return this.weight;
     }
 
+    /**
+     * Returns the type of the road.
+     *
+     * @return type
+     */
     public RoadType getType() {
         return type;
     }
@@ -71,6 +96,7 @@ public class Road {
      * Overrides the equals method to compare two Road objects.
      * This method checks if two Road objects are equal based on their fromVillage and toVillage.
      * Since the road is undirected, the order of villages doesn't matter.
+     *
      * @param obj The object to compare with.
      * @return true if the roads are equal, false otherwise.
      */
@@ -91,6 +117,7 @@ public class Road {
      * Overrides the hashCode method to generate a hash code for the Road object.
      * The hash code is based on the hash codes of the fromVillage and toVillage.
      * The order of villages doesn't matter, so the hash codes are simply added together.
+     *
      * @return The hash code for the Road object.
      */
     @Override

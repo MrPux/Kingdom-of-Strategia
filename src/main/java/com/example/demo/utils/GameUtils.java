@@ -4,7 +4,7 @@
 package com.example.demo.utils;
 
 import com.example.demo.classes.Mountain;
-import com.example.demo.classes.Village;
+import com.example.demo.classes.villageClasses.Village;
 
 import java.util.Random;
 
@@ -14,6 +14,7 @@ import java.util.Random;
 public class GameUtils {
     /**
      * Calculates the Euclidean distance between two villages.
+     *
      * @param village1 The first village.
      * @param village2 The second village.
      * @return The distance between the two villages.
@@ -32,9 +33,10 @@ public class GameUtils {
 
     /**
      * Checks if a line segment between two villages intersects a mountain.
-     * @param village1 The first village.
-     * @param village2 The second village.
-     * @param mountain The mountain to check for intersection against.
+     *
+     * @param village1       The first village.
+     * @param village2       The second village.
+     * @param mountain       The mountain to check for intersection against.
      * @param mountainRadius The radius of the mountain.
      * @return True if the line intersects the mountain, false otherwise.
      */
@@ -67,13 +69,14 @@ public class GameUtils {
 
     /**
      * Checks if a line segment intersects a circle.
-     * @param lineStartX The x-coordinate of the line segment's starting point.
-     * @param lineStartY The y-coordinate of the line segment's starting point.
-     * @param lineEndX The x-coordinate of the line segment's ending point.
-     * @param lineEndY The y-coordinate of the line segment's ending point.
+     *
+     * @param lineStartX    The x-coordinate of the line segment's starting point.
+     * @param lineStartY    The y-coordinate of the line segment's starting point.
+     * @param lineEndX      The x-coordinate of the line segment's ending point.
+     * @param lineEndY      The y-coordinate of the line segment's ending point.
      * @param circleCenterX The x-coordinate of the circle's center.
      * @param circleCenterY The y-coordinate of the circle's center.
-     * @param circleRadius The radius of the circle.
+     * @param circleRadius  The radius of the circle.
      * @return True if the line intersects the circle, false otherwise.
      */
     public static boolean lineIntersectsCircle(int lineStartX, int lineStartY, int lineEndX, int lineEndY, int circleCenterX, int circleCenterY, int circleRadius) {
@@ -110,6 +113,7 @@ public class GameUtils {
 
     /**
      * Calculates the Euclidean distance between two points.
+     *
      * @param point1X The x-coordinate of the first point.
      * @param point1Y The y-coordinate of the first point.
      * @param point2X The x-coordinate of the second point.

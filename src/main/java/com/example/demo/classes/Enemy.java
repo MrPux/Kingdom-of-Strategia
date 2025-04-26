@@ -2,6 +2,7 @@ package com.example.demo.classes;
 
 /**
  * Represents an enemy in the game.
+ * This class encapsulates the properties of an enemy, such as its coordinates, level, and sprite.
  */
 public class Enemy {
     /**
@@ -23,10 +24,11 @@ public class Enemy {
 
     /**
      * Constructs an Enemy object.
+     *
      * @param xCoordinate The x-coordinate of the enemy.
      * @param yCoordinate The y-coordinate of the enemy.
-     * @param level The level of the enemy.
-     * @param sprite The sprite of the enemy.
+     * @param level       The level of the enemy.
+     * @param sprite      The sprite of the enemy.
      */
     public Enemy(int xCoordinate, int yCoordinate, int level, String sprite) {
         this.xCoordinate = xCoordinate;
@@ -37,6 +39,7 @@ public class Enemy {
 
     /**
      * Gets the x-coordinate of the enemy.
+     *
      * @return The x-coordinate.
      */
     public int getXCoordinate() {
@@ -45,6 +48,7 @@ public class Enemy {
 
     /**
      * Gets the y-coordinate of the enemy.
+     *
      * @return The y-coordinate.
      */
     public int getYCoordinate() {
@@ -53,6 +57,7 @@ public class Enemy {
 
     /**
      * Gets the level of the enemy.
+     *
      * @return The level.
      */
     public int getLevel() {
@@ -61,6 +66,7 @@ public class Enemy {
 
     /**
      * Gets the sprite of the enemy.
+     *
      * @return The sprite.
      */
     public String getSprite() {

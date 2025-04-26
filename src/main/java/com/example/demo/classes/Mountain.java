@@ -3,6 +3,10 @@
  */
 package com.example.demo.classes;
 
+/**
+ * Represents a mountain in the game world.
+ * This class encapsulates the properties of a mountain, such as its coordinates and sprite.
+ */
 public class Mountain {
     /**
      * The x-coordinate of the mountain.
@@ -19,8 +23,10 @@ public class Mountain {
 
     /**
      * Constructs a Mountain object. Takes the x and y coordinates as preconditionsto define its position in the game world.
+     *
      * @param xCoordinate The x coordinate of the mountain.
      * @param yCoordinate The y coordinate of the mountain.
+     * @param sprite      The sprite of the mountain.
      */
     public Mountain(int xCoordinate, int yCoordinate, String sprite) {
         this.xCoordinate = xCoordinate;
@@ -30,6 +36,7 @@ public class Mountain {
 
     /**
      * returns x coordinate.
+     *
      * @return xCoordinate The horizontal coordinate of the mountain.
      */
     public int getXCoordinate() {
@@ -38,6 +45,7 @@ public class Mountain {
 
     /**
      * returns y coordinate.
+     *
      * @return yCoordinate The vertical coordinate of the mountain.
      */
     public int getYCoordinate() {
@@ -46,6 +54,7 @@ public class Mountain {
 
     /**
      * Returns the assigned sprite png of the mountain.
+     *
      * @return mountain
      */
     public String getSprite() {

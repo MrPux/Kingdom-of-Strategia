@@ -6,15 +6,17 @@ package com.example.demo.mechanics.pathfinding;
 import java.util.*;
 
 import com.example.demo.classes.Road;
-import com.example.demo.classes.Village;
+import com.example.demo.classes.villageClasses.Village;
 
 /**
  * This class builds the Minimum Spanning Tree (MST) for pathfinding.
+ * It uses Kruskal's algorithm with a Disjoint Set data structure to find the MST.
  */
 public class MSTBuilder {
 
     /**
      * Builds the Minimum Spanning Tree (MST) from a list of villages and all possible roads.
+     *
      * @param villages The list of villages in the game.
      * @param allRoads The list of all possible roads between villages.
      * @return A list of roads that form the MST.
@@ -48,8 +50,9 @@ public class MSTBuilder {
 
     /**
      * Finds the root of the connected component that a village belongs to (path compression).
+     *
      * @param parent The map representing the parent of each village in the Disjoint Set.
-     * @param v The village to find the root for.
+     * @param v      The village to find the root for.
      * @return The root village of the connected component.
      */
     private static Village find(Map<Village, Village> parent, Village v) {
@@ -62,9 +65,10 @@ public class MSTBuilder {
 
     /**
      * Unions the connected components of two villages.
+     *
      * @param parent The map representing the parent of each village in the Disjoint Set.
-     * @param v1 The first village.
-     * @param v2 The second village.
+     * @param v1     The first village.
+     * @param v2     The second village.
      */
     private static void union(Map<Village, Village> parent, Village v1, Village v2) {
         Village root1 = find(parent, v1); // Find the root of the first village

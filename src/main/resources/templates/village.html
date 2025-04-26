@@ -1,41 +1,38 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title th:text="'Village of ' + ${village.name}">Village Info</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.21.0/cytoscape.min.js"
+        crossorigin="anonymous"></script>
+
     <style>
-         /* header { 
-            background-color: black;
-            display: flex;
-            align-items: center;
-            justify-content: center;  
-        }
-
-
-        header h1 { 
-            color: white;
-        }
- */
-
         body {
             font-family: sans-serif;
             background-color: #f4f4f4;
-            padding: 40px;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: flex-start;
+            overflow: hidden;
         }
 
         .village-card {
             background-color: #fff;
             border-radius: 12px;
-            padding: 25px 30px;
+            padding: 20px 25px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            max-width: 500px;
-            width: 100%;
-        }
-
-        .village-card h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: #333;
+            width: 400px;
+            height: auto;
+            max-height: 90vh;
+            overflow-y: auto;
+            margin: 40px 20px 0 40px;
+            color: #454e4e;
+            font-weight: bold;
         }
 
         .village-card img {
@@ -44,52 +41,207 @@
             margin-bottom: 15px;
         }
 
-        .village-card p {
-            margin: 8px 0;
-            font-size: 15px;
-            color: #444;
+        .graph-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 40px;
+            flex-grow: 1;
         }
 
-        .village-card a {
-            display: inline-block;
+        #negative-cycle-graph {
+            flex-grow: 1;
+            margin: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            background-color: #ffffff;
+            border-radius: 12px;
+            height: calc(70vh); /* Graph height smaller to leave space for bottom cards */
+            width: 80%;
+        }
+
+        .bottom-cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             margin-top: 20px;
-            text-decoration: none;
-            color: #009a7e;
+            gap: 20px;
+        }
+
+        .square-card {
+            background-color: white;
+            width: 150px;
+            height: 150px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
+            color: #454e4e;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .square-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
+
 <body>
-    <!-- <header>
-        <nav>
-            <h1>Kingdom of Strategia</h1>
-        </nav>
-    </header> -->
 
-<div class="village-card">
+    <!-- Left Side Village Info -->
+    <div class="village-card">
+        <h1 th:text="${village.formattedName}">Village Name</h1>
+        <img th:src="@{${village.sprite}}" alt="Village Sprite" />
+        <p><strong>Population:</strong> <span th:text="${village.population}">0</span></p>
+        <p><strong>Structures:</strong> <span th:text="${village.structures}">0</span></p>
+        <p><strong>Coordinates:</strong> (<span th:text="${village.xCoordinate}">x</span>, <span th:text="${village.yCoordinate}">y</span>)</p>
+        <hr>
+        <h3>Resources</h3>
+        <p><strong>Food:</strong> <span th:text="${village.food}">0</span></p>
+        <p><strong>Wood:</strong> <span th:text="${village.wood}">0</span></p>
+        <p><strong>Rocks:</strong> <span th:text="${village.rocks}">0</span></p>
+        <p><strong>Iron:</strong> <span th:text="${village.iron}">0</span></p>
+        <p><strong>Coal:</strong> <span th:text="${village.coal}">0</span></p>
+        <p><strong>Villagers:</strong> <span th:text="${village.villagers}">0</span></p>
+        <p><strong>Knights:</strong> <span th:text="${village.knights}">0</span></p>
+        <a href="/hello" style="color:#009a7e; text-decoration: none;">← Back to Map</a>
+    </div>
 
-    <h1 th:text="${village.formattedName}">Village Name</h1>
-    <img th:src="@{${village.sprite}}" alt="Village Sprite" />
-    <p><strong>Population:</strong> <span th:text="${village.population}">0</span></p>
-    <p><strong>Structures:</strong> <span th:text="${village.structures}">0</span></p>
-    <p><strong>Coordinates:</strong> 
-        (<span th:text="${village.xCoordinate}">x</span>, 
-        <span th:text="${village.yCoordinate}">y</span>)
-    </p>
+    <!-- Right Side Graph + Cards -->
+    <div class="graph-section">
 
-    <hr>
-    <h3>Resources</h3> 
-    <p><strong>Food:</strong> <span th:text="${village.food}">0</span></p> 
-    <p><strong>Wood:</strong> <span th:text="${village.wood}">0</span></p>
-    <p><strong>Rocks:</strong> <span th:text="${village.rocks}">0</span></p>
-    <p><strong>Iron:</strong> <span th:text="${village.iron}">0</span></p>
-    <p><strong>Coal:</strong> <span th:text="${village.coal}">0</span></p>
-    <p><strong>Villagers:</strong> <span th:text="${village.villagers}">0</span></p>
-    <p><strong>Knights:</strong> <span th:text="${village.knights}">0</span></p>
-    
+        <!-- Graph Canvas -->
+        <div id="negative-cycle-graph"></div>
 
-    <a href="/hello">← Back to Map</a>
-</div>
+        <!-- Bottom Cards -->
+        <div class="bottom-cards">
+            <div class="square-card">Dijkstra</div>
+            <div class="square-card">Bellman-Ford</div>
+            <div class="square-card">Floyd-Warshall</div>
+            <!-- Add more cards if you want -->
+        </div>
+
+    </div>
+
+    <!-- Cytoscape Graph Script -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var graphData = /*[[${graphData}]]*/ '[]';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            try {
+                var parsedData = JSON.parse(graphData);
+
+                var cy = cytoscape({
+                    container: document.getElementById('negative-cycle-graph'),
+                    elements: parsedData.nodes.concat(parsedData.edges),
+                    style: [
+                        {
+                            selector: 'node',
+                            style: {
+                                'background-image': 'data(houseSprite)',
+                                'background-fit': 'contain',
+                                'background-opacity': 0,
+                                'shape': 'ellipse',
+                                'border-width': 0,
+                                'width': '60px',
+                                'height': '60px',
+                                'label': '',
+                                'text-valign': 'bottom',
+                                'text-halign': 'center',
+                                'text-margin-y': 10,
+                                'overlay-opacity': 0
+                            }
+                        },
+                        {
+                            selector: 'node[id = "fountain"]',
+                            style: {
+                                'label': '',
+                                'width': '70px',
+                                'height': '70px'
+                            }
+                        },
+                        // 🔴 Negative weights
+                        {
+                            selector: 'edge[weight < 0]',
+                            style: {
+                                'color': 'red',
+                                'label': 'data(weight)',
+                                'font-size': '12px',
+                                'text-outline-width': 2,
+                                'text-outline-color': 'white',
+                                'text-background-color': 'white',
+                                'text-background-opacity': 1,
+                                'text-background-shape': 'roundrectangle',
+                                'line-color': '#888',
+                                'width': 3,
+                                'curve-style': 'bezier',
+                                'target-arrow-shape': 'triangle',
+                                'target-arrow-color': '#888',
+                                'mid-target-arrow-shape': 'vee',
+                                'mid-target-arrow-color': '#888',
+                                'mid-target-arrow-fill': 'hollow',
+                                'arrow-scale': 1.5,
+                                'opacity': 0.9,
+                                'line-style': 'dashed',
+                                'line-dash-pattern': [8, 4]
+                            }
+                        },
+
+                        // ✅ Positive weights
+                        {
+                            selector: 'edge[weight >= 0]',
+                            style: {
+                                'color': 'green',
+                                'label': 'data(weight)',
+                                'font-size': '12px',
+                                'text-outline-width': 2,
+                                'text-outline-color': 'white',
+                                'text-background-color': 'white',
+                                'text-background-opacity': 1,
+                                'text-background-shape': 'roundrectangle',
+                                'line-color': '#888',
+                                'width': 3,
+                                'curve-style': 'bezier',
+                                'target-arrow-shape': 'triangle',
+                                'target-arrow-color': '#888',
+                                'mid-target-arrow-shape': 'vee',
+                                'mid-target-arrow-color': '#888',
+                                'mid-target-arrow-fill': 'hollow',
+                                'arrow-scale': 1.5,
+                                'opacity': 0.9,
+                                'line-style': 'dashed',
+                                'line-dash-pattern': [8, 4]
+                            }
+                        },
+                    ],
+                    layout: {
+                        name: 'cose',
+                        animate: false
+                    }
+                });
+
+                // 🔁 Animate dashed line movement
+                let dashOffset = 0;
+                setInterval(() => {
+                    dashOffset = (dashOffset - 1) % 100;
+                    cy.edges().forEach(edge => {
+                        edge.style('line-dash-offset', dashOffset);
+                    });
+                }, 60);
+
+                cy.fit();
+
+            } catch (e) {
+                console.error("Error initializing Cytoscape:", e);
+                document.getElementById('negative-cycle-graph').innerText = "Error: Could not render graph.";
+            }
+        });
+        /*]]>*/
+    </script>
 
 </body>
+
 </html>

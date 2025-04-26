@@ -1,33 +1,93 @@
-Game Goal:
-The goal of Kingdom of Strategia is to build and manage villages, connect them with roads, defend them from enemies, and expand your kingdom.
-
-File Summary:
-
-- src/main/java/com/example/demo/GameApplication.java:
-  This is the main entry point of the Spring Boot application. It initializes and starts the application.
-- src/main/java/com/example/demo/classes/Enemy.java:
-  Defines the Enemy class, representing an enemy unit with coordinates, level, and sprite.
-- src/main/java/com/example/demo/classes/Mountain.java:
-  Defines the Mountain class, representing a mountain on the map with coordinates and sprite.
-- src/main/java/com/example/demo/classes/Road.java:
-  Defines the Road class, representing a road connecting two villages with a weight.
-- src/main/java/com/example/demo/classes/Village.java:
-  Defines the Village class, representing a village on the map with coordinates, id, and sprite.
-- src/main/java/com/example/demo/controllers/ClickController.java:
-  Handles click events on the map (currently empty).
-- src/main/java/com/example/demo/controllers/MyController.java:
-  Handles HTTP requests and prepares data for the view (index.html).
-- src/main/java/com/example/demo/mechanics/generation/GameMap.java:
-  Defines the GameMap class, which holds lists of villages, roads, and mountains.
-- src/main/java/com/example/demo/mechanics/generation/GameMapGenerator.java:
-  Generates the game map, including villages, roads, and mountains.
-- src/main/java/com/example/demo/mechanics/pathfinding/MSTBuilder.java:
-  Builds a Minimum Spanning Tree (MST) to connect villages with roads.
-- src/main/java/com/example/demo/utils/GameUtils.java:
-  Provides utility functions for game logic, such as distance calculation and line intersection.
-- src/main/java/com/example/demo/utils/LinkedList.java:
-  A custom LinkedList implementation (not currently used).
-- src/main/java/com/example/demo/utils/SpriteLoader.java:
-  Loads sprite filenames from the classpath.
-- src/main/resources/templates/index.html:
-  The main Thymeleaf template for rendering the game map in the browser.
+.DS_Store
+.gitattributes
+.gitignore
+explanation.txt
+mvnw
+mvnw.cmd
+pom.xml
+src/
+src/.DS_Store
+src/main/
+src/main/.DS_Store
+src/main/java/
+src/main/java/com/
+src/main/java/com/example/
+src/main/java/com/example/demo/
+src/main/java/com/example/demo/GameApplication.java
+src/main/java/com/example/demo/classes/
+src/main/java/com/example/demo/classes/Enemy.java
+src/main/java/com/example/demo/classes/Mountain.java
+src/main/java/com/example/demo/classes/Road.java
+src/main/java/com/example/demo/classes/RoadType.java
+src/main/java/com/example/demo/classes/villageClasses/
+src/main/java/com/example/demo/classes/villageClasses/StructureEdge.java
+src/main/java/com/example/demo/classes/villageClasses/StructureNode.java
+src/main/java/com/example/demo/classes/villageClasses/Village.java
+src/main/java/com/example/demo/classes/villageClasses/VillageType.java
+src/main/java/com/example/demo/controllers/
+src/main/java/com/example/demo/controllers/ClickController.java
+src/main/java/com/example/demo/controllers/MyController.java
+src/main/java/com/example/demo/controllers/VillageController.java
+src/main/java/com/example/demo/mechanics/
+src/main/java/com/example/demo/mechanics/text.txt
+src/main/java/com/example/demo/mechanics/generation/
+src/main/java/com/example/demo/mechanics/generation/GameMap.java
+src/main/java/com/example/demo/mechanics/generation/GameMapGenerator.java
+src/main/java/com/example/demo/mechanics/pathfinding/
+src/main/java/com/example/demo/mechanics/pathfinding/BellmanFord.java
+src/main/java/com/example/demo/mechanics/pathfinding/MSTBuilder.java
+src/main/java/com/example/demo/services/
+src/main/java/com/example/demo/utils/
+src/main/java/com/example/demo/utils/GameConfig.java
+src/main/java/com/example/demo/utils/GameUtils.java
+src/main/java/com/example/demo/utils/LinkedList.java
+src/main/java/com/example/demo/utils/SpriteLoader.java
+src/main/resources/
+src/main/resources/.DS_Store
+src/main/resources/application.properties
+src/main/resources/assets/
+src/main/resources/assets/road.png
+src/main/resources/static/
+src/main/resources/static/assets/
+src/main/resources/static/assets/enemy-lvl-6.png
+src/main/resources/static/assets/mountain1.png
+src/main/resources/static/assets/spyglass.png
+src/main/resources/static/assets/enemies/
+src/main/resources/static/assets/enemies/enemy-lvl-1.png
+src/main/resources/static/assets/enemies/enemy-lvl-2.png
+src/main/resources/static/assets/mountains/
+src/main/resources/static/assets/mountains/mountain1.png
+src/main/resources/static/assets/mountains/mountain2.png
+src/main/resources/static/assets/mountains/mountain3.png
+src/main/resources/static/assets/villages/
+src/main/resources/static/assets/villages/armorVillage.png
+src/main/resources/static/assets/villages/commonVillage.png
+src/main/resources/static/assets/villages/compositeVillage.png
+src/main/resources/static/assets/villages/timberVillage.png
+src/main/resources/static/assets/Villages-Houses/
+src/main/resources/static/assets/Villages-Houses/.DS_Store
+src/main/resources/static/assets/Villages-Houses/CommonVillage-Houses/
+src/main/resources/static/assets/Villages-Houses/CommonVillage-Houses/.DS_Store
+src/main/resources/static/assets/Villages-Houses/CommonVillage-Houses/CommonVillageFountain.png
+src/main/resources/static/assets/Villages-Houses/CommonVillage-Houses/commonVillageHouse1.png
+src/main/resources/static/assets/Villages-Houses/CommonVillage-Houses/commonVillageHouse3.png
+src/main/resources/static/assets/Villages-Houses/CommonVillage-Houses/commonVillageHouse4.png
+src/main/resources/static/assets/Villages-Houses/CommonVillage-Houses/commonVillageHouse5.png
+src/main/resources/static/assets/Villages-Houses/CommonVillage-Houses/commonVillageHouse6.png
+src/main/resources/static/assets/Villages-Houses/CommonVillage-Houses/commonVillageHouse7.png
+src/main/resources/static/assets/Villages-Houses/CommonVillage-Houses/commonVillageHouse24.png
+src/main/resources/static/css/
+src/main/resources/static/css/style.css
+src/main/resources/static/js/
+src/main/resources/static/js/index.js
+src/main/resources/templates/
+src/main/resources/templates/index.html
+src/main/resources/templates/style.css
+src/main/resources/templates/village.html
+src/test/
+src/test/java/
+src/test/java/com/
+src/test/java/com/example/
+src/test/java/com/example/demo/
+src/test/java/com/example/demo/DemoApplicationTests.java
+target/
