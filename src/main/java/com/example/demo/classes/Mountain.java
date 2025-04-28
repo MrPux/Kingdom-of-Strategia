@@ -4,8 +4,15 @@
 package com.example.demo.classes;
 
 /**
+ * <h1>Mountain</h1>
+ * <p>
  * Represents a mountain in the game world.
  * This class encapsulates the properties of a mountain, such as its coordinates and sprite.
+ * </p>
+ * <p>
+ * The Mountain class is used to define the characteristics of a mountain in the game world.
+ * It stores information about the mountain's position and appearance.
+ * </p>
  */
 public class Mountain {
     /**
@@ -22,7 +29,10 @@ public class Mountain {
     private String sprite;
 
     /**
+     * <h1>Mountain Constructor</h1>
+     * <p>
      * Constructs a Mountain object. Takes the x and y coordinates as preconditionsto define its position in the game world.
+     * </p>
      *
      * @param xCoordinate The x coordinate of the mountain.
      * @param yCoordinate The y coordinate of the mountain.

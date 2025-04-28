@@ -9,13 +9,31 @@ import com.example.demo.classes.Road;
 import com.example.demo.classes.villageClasses.Village;
 
 /**
+ * <h1>MSTBuilder</h1>
+ * <p>
  * This class builds the Minimum Spanning Tree (MST) for pathfinding.
  * It uses Kruskal's algorithm with a Disjoint Set data structure to find the MST.
+ * </p>
+ * <p>
+ * The MSTBuilder class is responsible for constructing a Minimum Spanning Tree (MST) from a given
+ * set of villages and roads. The MST is a subset of the roads that connects all the villages
+ * together with the minimum possible total road weight. This is useful for pathfinding and
+ * network optimization in the game.
+ * </p>
  */
 public class MSTBuilder {
 
     /**
+     * <h1>buildMST Method</h1>
+     * <p>
      * Builds the Minimum Spanning Tree (MST) from a list of villages and all possible roads.
+     * </p>
+     * <p>
+     * This method implements Kruskal's algorithm to find the MST. It sorts all the roads by weight,
+     * and then iterates through the sorted roads, adding each road to the MST if it connects two
+     * villages that are not already connected in the MST. A Disjoint Set data structure is used to
+     * track the connected components of the villages.
+     * </p>
      *
      * @param villages The list of villages in the game.
      * @param allRoads The list of all possible roads between villages.
@@ -49,7 +67,15 @@ public class MSTBuilder {
     }
 
     /**
+     * <h1>find Method</h1>
+     * <p>
      * Finds the root of the connected component that a village belongs to (path compression).
+     * </p>
+     * <p>
+     * This method recursively finds the root of the connected component that a village belongs to.
+     * It also performs path compression, which optimizes the Disjoint Set data structure by setting
+     * the parent of each village on the path to the root to be the root itself.
+     * </p>
      *
      * @param parent The map representing the parent of each village in the Disjoint Set.
      * @param v      The village to find the root for.
@@ -64,7 +90,14 @@ public class MSTBuilder {
     }
 
     /**
+     * <h1>union Method</h1>
+     * <p>
      * Unions the connected components of two villages.
+     * </p>
+     * <p>
+     * This method merges the connected components of two villages by setting the parent of the root
+     * of the first village's connected component to the root of the second village's connected component.
+     * </p>
      *
      * @param parent The map representing the parent of each village in the Disjoint Set.
      * @param v1     The first village.

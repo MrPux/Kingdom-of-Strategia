@@ -11,7 +11,15 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 /**
+ * <h1>GameMap</h1>
+ * <p>
  * Represents the game map, containing mountains, villages, roads, and enemies.
+ * </p>
+ * <p>
+ * The GameMap class is used to store and manage the elements of the game world, including
+ * mountains, villages, roads, and enemies. It provides methods for accessing and modifying
+ * these elements.
+ * </p>
  */
 @Component
 public class GameMap {
@@ -23,8 +31,11 @@ public class GameMap {
     private Village startingVillage;
 
     /**
+     * <h1>GameMap Constructor</h1>
+     * <p>
      * Constructs a new GameMap object.
      * Initializes the lists of mountains, villages, roads, and enemies.
+     * </p>
      */
     public GameMap() {
         this.villages = new ArrayList<>();
@@ -168,5 +179,5 @@ public class GameMap {
         mountains.clear();
         enemies.clear();
         startingVillage = null;
-    } 
+    }
 }

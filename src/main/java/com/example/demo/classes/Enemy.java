@@ -1,8 +1,15 @@
 package com.example.demo.classes;
 
 /**
+ * <h1>Enemy</h1>
+ * <p>
  * Represents an enemy in the game.
  * This class encapsulates the properties of an enemy, such as its coordinates, level, and sprite.
+ * </p>
+ * <p>
+ * The Enemy class is used to define the characteristics of an enemy character in the game.
+ * It stores information about the enemy's position, strength, and appearance.
+ * </p>
  */
 public class Enemy {
     /**
@@ -23,7 +30,10 @@ public class Enemy {
     private final String sprite;
 
     /**
+     * <h1>Enemy Constructor</h1>
+     * <p>
      * Constructs an Enemy object.
+     * </p>
      *
      * @param xCoordinate The x-coordinate of the enemy.
      * @param yCoordinate The y-coordinate of the enemy.

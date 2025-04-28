@@ -9,11 +9,22 @@ import com.example.demo.classes.villageClasses.Village;
 import java.util.Random;
 
 /**
+ * <h1>GameUtils</h1>
+ * <p>
  * This class provides general utility functions for the game, such as distance calculation and intersection checks.
+ * </p>
+ * <p>
+ * The GameUtils class provides static methods for performing common calculations and checks
+ * that are used throughout the game, such as calculating the distance between two villages or
+ * checking if a line segment intersects a circle.
+ * </p>
  */
 public class GameUtils {
     /**
+     * <h1>calculateDistance Method</h1>
+     * <p>
      * Calculates the Euclidean distance between two villages.
+     * </p>
      *
      * @param village1 The first village.
      * @param village2 The second village.
@@ -32,7 +43,10 @@ public class GameUtils {
     }
 
     /**
+     * <h1>lineIntersectsMountain Method</h1>
+     * <p>
      * Checks if a line segment between two villages intersects a mountain.
+     * </p>
      *
      * @param village1       The first village.
      * @param village2       The second village.
@@ -68,7 +82,10 @@ public class GameUtils {
     }
 
     /**
+     * <h1>lineIntersectsCircle Method</h1>
+     * <p>
      * Checks if a line segment intersects a circle.
+     * </p>
      *
      * @param lineStartX    The x-coordinate of the line segment's starting point.
      * @param lineStartY    The y-coordinate of the line segment's starting point.
@@ -112,7 +129,10 @@ public class GameUtils {
     }
 
     /**
+     * <h1>calculateDistance Method</h1>
+     * <p>
      * Calculates the Euclidean distance between two points.
+     * </p>
      *
      * @param point1X The x-coordinate of the first point.
      * @param point1Y The y-coordinate of the first point.

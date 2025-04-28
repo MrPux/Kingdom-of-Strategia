@@ -12,7 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
+ * <h1>MyController</h1>
+ * <p>
  * Controller for handling the main game map and related requests.
+ * </p>
+ * <p>
+ * The MyController class is responsible for handling requests related to the main game map.
+ * It provides methods for displaying the map and for emptying the map.
+ * </p>
  */
 @Controller
 @RequestMapping("/")
@@ -21,7 +28,10 @@ public class MyController {
     private final GameMap map;
 
     /**
+     * <h1>MyController Constructor</h1>
+     * <p>
      * Constructor for the MyController.
+     * </p>
      *
      * @param map The GameMap instance to use for game data.
      */
@@ -30,8 +40,11 @@ public class MyController {
     }
 
     /**
+     * <h1>showMap Method</h1>
+     * <p>
      * Displays the main game map.
      * If the map is empty, it generates a new map.
+     * </p>
      *
      * @param model The Model to add the map data to.
      * @return The name of the view to render (index.html).
@@ -60,7 +73,10 @@ public class MyController {
     }
 
     /**
+     * <h1>emptyMap Method</h1>
+     * <p>
      * Empties the game map and redirects to the main map view.
+     * </p>
      *
      * @return Redirects to the /hello endpoint.
      */

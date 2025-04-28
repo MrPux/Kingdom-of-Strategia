@@ -229,4 +229,16 @@ window.addEventListener('load', () => {
         // This event listener is triggered when the mouse wheel is scrolled.
         if (e.ctrlKey) e.preventDefault(); // Prevent default wheel events when the control key is pressed.
     }, { passive: false });
+
+    // ✅ Dijkstra Button Click
+    const dijkstraCard = document.getElementById('dijkstra-card');
+    if (dijkstraCard) {
+        dijkstraCard.addEventListener('click', () => {
+            try {
+                playDijkstraAnimation();
+            } catch (e) {
+                console.error("Error playing Dijkstra animation:", e);
+            }
+        });
+    }
 });

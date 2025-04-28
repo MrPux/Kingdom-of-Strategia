@@ -3,11 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
+    <!-- Sets the title of the page dynamically using Thymeleaf -->
     <title th:text="'Village of ' + ${village.name}">Village Info</title>
+    <!-- Cytoscape.js library for graph visualization -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.21.0/cytoscape.min.js"
         crossorigin="anonymous"></script>
 
     <style>
+        /* Basic styling for the page */
         body {
             font-family: sans-serif;
             background-color: #f4f4f4;
@@ -21,6 +24,7 @@
             overflow: hidden;
         }
 
+        /* Style for the village information card on the left */
         .village-card {
             background-color: #fff;
             border-radius: 12px;
@@ -35,12 +39,14 @@
             font-weight: bold;
         }
 
+        /* Style for the village image */
         .village-card img {
             width: 100px;
             height: auto;
             margin-bottom: 15px;
         }
 
+        /* Style for the graph section on the right */
         .graph-section {
             display: flex;
             flex-direction: column;
@@ -49,16 +55,19 @@
             flex-grow: 1;
         }
 
+        /* Style for the graph canvas */
         #negative-cycle-graph {
             flex-grow: 1;
             margin: 20px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
             background-color: #ffffff;
             border-radius: 12px;
-            height: calc(70vh); /* Graph height smaller to leave space for bottom cards */
+            height: calc(70vh);
+            /* Graph height smaller to leave space for bottom cards */
             width: 80%;
         }
 
+        /* Style for the bottom cards container */
         .bottom-cards {
             display: flex;
             flex-wrap: wrap;
@@ -67,6 +76,7 @@
             gap: 20px;
         }
 
+        /* Style for the square cards */
         .square-card {
             background-color: white;
             width: 150px;
@@ -81,6 +91,7 @@
             transition: transform 0.3s, box-shadow 0.3s;
         }
 
+        /* Hover effect for the square cards */
         .square-card:hover {
             transform: scale(1.05);
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
@@ -90,51 +101,80 @@
 
 <body>
 
-    <!-- Left Side Village Info -->
+    <!-- Left Side Village Info - Contains details about the selected village -->
     <div class="village-card">
+        <!-- Village Name - Dynamically set using Thymeleaf -->
         <h1 th:text="${village.formattedName}">Village Name</h1>
+        <!-- Village Sprite - Dynamically set using Thymeleaf to display the village's image -->
         <img th:src="@{${village.sprite}}" alt="Village Sprite" />
+        <!-- Village Population - Dynamically set using Thymeleaf -->
         <p><strong>Population:</strong> <span th:text="${village.population}">0</span></p>
+        <!-- Village Structures - Dynamically set using Thymeleaf -->
         <p><strong>Structures:</strong> <span th:text="${village.structures}">0</span></p>
-        <p><strong>Coordinates:</strong> (<span th:text="${village.xCoordinate}">x</span>, <span th:text="${village.yCoordinate}">y</span>)</p>
+        <!-- Village Coordinates - Dynamically set using Thymeleaf -->
+        <p><strong>Coordinates:</strong> (<span th:text="${village.xCoordinate}">x</span>, <span
+                th:text="${village.yCoordinate}">y</span>)</p>
         <hr>
+        <!-- Village Resources Section -->
         <h3>Resources</h3>
+        <!-- Food Resource - Dynamically set using Thymeleaf -->
         <p><strong>Food:</strong> <span th:text="${village.food}">0</span></p>
+        <!-- Wood Resource - Dynamically set using Thymeleaf -->
         <p><strong>Wood:</strong> <span th:text="${village.wood}">0</span></p>
+        <!-- Rocks Resource - Dynamically set using Thymeleaf -->
         <p><strong>Rocks:</strong> <span th:text="${village.rocks}">0</span></p>
+        <!-- Iron Resource - Dynamically set using Thymeleaf -->
         <p><strong>Iron:</strong> <span th:text="${village.iron}">0</span></p>
+        <!-- Coal Resource - Dynamically set using Thymeleaf -->
         <p><strong>Coal:</strong> <span th:text="${village.coal}">0</span></p>
+        <!-- Villagers Count - Dynamically set using Thymeleaf -->
         <p><strong>Villagers:</strong> <span th:text="${village.villagers}">0</span></p>
+        <!-- Knights Count - Dynamically set using Thymeleaf -->
         <p><strong>Knights:</strong> <span th:text="${village.knights}">0</span></p>
+        <!-- Back to Map Link - A link to return to the main map -->
         <a href="/hello" style="color:#009a7e; text-decoration: none;">← Back to Map</a>
     </div>
 
-    <!-- Right Side Graph + Cards -->
+    <!-- Right Side Graph + Cards - Contains the graph visualization and algorithm selection cards -->
     <div class="graph-section">
 
-        <!-- Graph Canvas -->
+        <!-- Graph Canvas - Where the Cytoscape graph will be rendered -->
         <div id="negative-cycle-graph"></div>
-
-        <!-- Bottom Cards -->
-        <div class="bottom-cards">
-            <div class="square-card">Dijkstra</div>
-            <div class="square-card">Bellman-Ford</div>
-            <div class="square-card">Floyd-Warshall</div>
-            <!-- Add more cards if you want -->
+        <!-- Notification for Algorithm Info - Displays a warning if Dijkstra's algorithm cannot be used -->
+        <div id="algorithm-notice"
+            style="display: none; padding: 15px 20px; margin: 20px auto; background-color: #ffe0e0; border: 1px solid #ff6b6b; border-radius: 10px; color: #a40000; font-weight: bold; width: 80%; text-align: center;">
+            ⚠️ Dijkstra cannot be used due to negative edges. Try Bellman-Ford or Floyd-Warshall instead!
         </div>
 
+        <!-- Bottom Cards - Algorithm selection cards -->
+        <div class="bottom-cards">
+            <!-- Dijkstra Card - Card to trigger Dijkstra's algorithm animation -->
+            <div class="square-card" id="dijkstra-card">Dijkstra</div>
+            <!-- Bellman-Ford Card - Card to trigger Bellman-Ford algorithm animation -->
+            <div class="square-card" id="Bellman-Ford-card">Bellman-Ford</div>
+            <!-- Floyd-Warshall Card - Card to trigger Floyd-Warshall algorithm animation -->
+            <div class="square-card" id="Floyd-Warshall-card">Floyd-Warshall</div>
+            <!-- Add more cards if you want -->
+        </div>
     </div>
 
-    <!-- Cytoscape Graph Script -->
+    <!-- Cytoscape Graph Script - JavaScript code to render and interact with the graph -->
     <script th:inline="javascript">
         /*<![CDATA[*/
-        var graphData = /*[[${graphData}]]*/ '[]';
+        // GLOBAL variables here:
+        var parsedData = {}; // global
+        var graphData = /*[[${graphData}]]*/ '[]'; // global graph JSON
+        var animationSteps = /*[[${animationSteps}]]*/ '[]'; // global Dijkstra animation JSON
+        var cy; // global Cytoscape instance
 
+        // Event listener that triggers when the document is fully loaded
         document.addEventListener('DOMContentLoaded', function () {
             try {
-                var parsedData = JSON.parse(graphData);
+                // Parse the graph data from JSON format
+                parsedData = JSON.parse(graphData);
 
-                var cy = cytoscape({
+                // Initialize Cytoscape graph
+                cy = cytoscape({
                     container: document.getElementById('negative-cycle-graph'),
                     elements: parsedData.nodes.concat(parsedData.edges),
                     style: [
@@ -163,7 +203,7 @@
                                 'height': '70px'
                             }
                         },
-                        // 🔴 Negative weights
+                        // Negative weights
                         {
                             selector: 'edge[weight < 0]',
                             style: {
@@ -189,8 +229,7 @@
                                 'line-dash-pattern': [8, 4]
                             }
                         },
-
-                        // ✅ Positive weights
+                        // Positive weights
                         {
                             selector: 'edge[weight >= 0]',
                             style: {
@@ -223,24 +262,137 @@
                     }
                 });
 
-                // 🔁 Animate dashed line movement
+                cy.fit(); // zoom graph to fit nicely
+
+                // Animate dashed line movement (optional visual)
                 let dashOffset = 0;
                 setInterval(() => {
                     dashOffset = (dashOffset - 1) % 100;
                     cy.edges().forEach(edge => {
-                        edge.style('line-dash-offset', dashOffset);
+                        if (edge.style('line-style') === 'dashed') {  // ⬅️ Only if still dashed
+                            edge.style('line-dash-offset', dashOffset);
+                        }
                     });
                 }, 60);
 
-                cy.fit();
 
             } catch (e) {
                 console.error("Error initializing Cytoscape:", e);
                 document.getElementById('negative-cycle-graph').innerText = "Error: Could not render graph.";
             }
         });
+
+        // ✅ Dijkstra Animation Function - Animates Dijkstra's algorithm on the graph
+        async function playDijkstraAnimation() {
+            const steps = JSON.parse(animationSteps);
+            const finalizedEdges = new Set(); // 🟢 to track final green connections
+
+            for (const step of steps) {
+                const edge = cy.edges().filter(e => {
+                    return (e.source().id() === step.from && e.target().id() === step.to) ||
+                        (e.source().id() === step.to && e.target().id() === step.from);
+                });
+
+                if (step.action === "visit") {
+                    edge.forEach(e => {
+                        e.style({
+                            'line-color': 'orange',
+                            'target-arrow-color': 'orange',
+                            'line-style': 'solid',
+                            'width': 4,
+                            'line-dash-pattern': []
+                        });
+                        cy.$id(step.from).style({
+                            'border-width': '4px',
+                            'border-color': 'orange'
+                        });
+                        cy.$id(step.to).style({
+                            'border-width': '4px',
+                            'border-color': 'orange'
+                        });
+                    });
+                } else if (step.action === "finalize") {
+                    edge.forEach(e => {
+                        e.style({
+                            'line-color': 'green',
+                            'target-arrow-color': 'green',
+                            'line-style': 'solid',
+                            'width': 5,
+                            'line-dash-pattern': []
+                        });
+                        cy.$id(step.from).style({
+                            'border-width': '4px',
+                            'border-color': 'green'
+                        });
+                        cy.$id(step.to).style({
+                            'border-width': '4px',
+                            'border-color': 'green'
+                        });
+
+                        finalizedEdges.add(e.id()); // 🟢 Mark this edge as finalized
+                    });
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 500)); // small delay between steps
+            }
+
+            // ✨ After ALL animations, hide the remaining orange edges
+            cy.edges().forEach(edge => {
+                if (!finalizedEdges.has(edge.id())) {
+                    // This edge was only visited, not finalized → hide it
+                    edge.style({
+                        'opacity': 0.2,         // you can also use 0 if you want it invisible
+                        'line-color': '#ccc',    // optional: gray color for "inactive" edges
+                        'target-arrow-color': '#ccc'
+                    });
+                }
+            });
+        }
+
+
+
+        // ✅ Dijkstra Button Click - Handles the click event for the Dijkstra card
+        var hasNegativeEdge = /*[[${hasNegativeEdge}]]*/ false; // only declare ONCE
+
+        const dijkstraCard = document.getElementById('dijkstra-card');
+        const notice = document.getElementById('algorithm-notice');
+        const bottomCards = document.querySelector('.bottom-cards'); // <-- get the cards container
+
+        dijkstraCard.addEventListener('click', () => {
+            if (!hasNegativeEdge) {
+                playDijkstraAnimation();
+                console.log("✅ Dijkstra animation triggered (no negative edges).");
+            } else {
+                console.log("❌ Negative edges detected: showing notice!");
+
+                // ⬇️ Hide bottom cards
+                bottomCards.style.display = "none";
+
+                // ⬇️ Show notification
+                notice.style.opacity = 0;
+                notice.style.display = "block";
+                setTimeout(() => {
+                    notice.style.transition = "opacity 0.5s ease-in";
+                    notice.style.opacity = 1;
+                }, 10);
+
+                // ⬇️ After 3 seconds, fade out notification
+                setTimeout(() => {
+                    notice.style.transition = "opacity 1s ease-out";
+                    notice.opacity = 0;
+
+                    // After fading out, hide the notice and bring back cards
+                    setTimeout(() => {
+                        notice.style.display = "none";
+                        bottomCards.style.display = "flex"; // 👈 bring back cards
+                    }, 1000); // wait for fade out to finish
+                }, 3000); // wait 3 seconds before starting fade
+            }
+        });
+
         /*]]>*/
     </script>
+
 
 </body>
 

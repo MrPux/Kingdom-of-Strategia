@@ -15,8 +15,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <h1>SpriteLoader</h1>
+ * <p>
  * A utility class responsible for loading sprite filenames from the classpath.
  * This class provides methods to load village, mountain, enemy, and structure sprites.
+ * </p>
+ * <p>
+ * The SpriteLoader class is responsible for loading and managing the sprite filenames used
+ * throughout the game. It provides methods for loading sprites from various directories
+ * and for retrieving random sprites for different game elements.
+ * </p>
  */
 public class SpriteLoader {
 
@@ -53,7 +61,15 @@ public class SpriteLoader {
     }
 
     /**
+     * <h1>loadSprites Method</h1>
+     * <p>
      * Generic method to load sprite filenames from a given path.
+     * </p>
+     * <p>
+     * This method loads all sprite filenames from a given path in the classpath.
+     * It uses a ResourcePatternResolver to find all the resources matching the specified pattern,
+     * and then extracts the filenames from the resources.
+     * </p>
      *
      * @param path The path to load sprites from.
      * @return A list of sprite filenames.
@@ -61,7 +77,7 @@ public class SpriteLoader {
     private static List<String> loadSprites(String path) {
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         List<String> filenames = new ArrayList<>();
-    
+
         try {
             Resource[] resources = resolver.getResources(path + "*.png");
             for (Resource resource : resources) {
@@ -77,13 +93,16 @@ public class SpriteLoader {
         } catch (IOException e) {
             logger.error("Error loading sprites from path: " + path, e);
         }
-    
+
         return filenames;
     }
-    
+
 
     /**
+     * <h1>getRandomVillageSprite Method</h1>
+     * <p>
      * Picks a random village sprite.
+     * </p>
      *
      * @return full path to a random village sprite.
      */
@@ -96,7 +115,10 @@ public class SpriteLoader {
     }
 
     /**
+     * <h1>getRandomMountainSprite Method</h1>
+     * <p>
      * Picks a random mountain sprite.
+     * </p>
      *
      * @return full path to a random mountain sprite.
      */
@@ -109,7 +131,10 @@ public class SpriteLoader {
     }
 
     /**
+     * <h1>getRandomEnemySprite Method</h1>
+     * <p>
      * Picks a random enemy sprite.
+     * </p>
      *
      * @return full path to a random enemy sprite.
      */
@@ -122,7 +147,10 @@ public class SpriteLoader {
     }
 
     /**
+     * <h1>getRandomStructureSprite Method</h1>
+     * <p>
      * Picks a random structure sprite based on the village type.
+     * </p>
      *
      * @param villageType the type of the village
      * @return full path to a random structure sprite.
@@ -157,8 +185,11 @@ public class SpriteLoader {
     }
 
     /**
+     * <h1>getFountainSprite Method</h1>
+     * <p>
      * Gets the fountain sprite path based on the village type.
      * This sprite is excluded from the random house sprites.
+     * </p>
      *
      * @param villageType The type of the village.
      * @return The path to the fountain sprite.
@@ -178,6 +209,6 @@ public class SpriteLoader {
         };
         return "/assets/structures/" + folder + "/" + filename;
     }
-    
+
 
 }

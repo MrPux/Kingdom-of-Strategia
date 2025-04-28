@@ -9,9 +9,17 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
+ * <h1>Village</h1>
+ * <p>
  * Represents a village in the game.
  * This class holds information about the village, such as its name, ID, population, resources,
  * and the structures within it. It also manages the connections between structures for pathfinding purposes.
+ * </p>
+ * <p>
+ * The Village class is a central entity in the game, representing a settlement with its own
+ * characteristics and resources. It contains methods for managing resources, structures, and
+ * connections between structures.
+ * </p>
  */
 public class Village {
 
@@ -37,7 +45,10 @@ public class Village {
     private int rocks;
 
     /**
+     * <h1>Village Constructor</h1>
+     * <p>
      * Constructs a new Village object.
+     * </p>
      *
      * @param name       The name of the village.
      * @param id         The ID of the village.
@@ -60,7 +71,14 @@ public class Village {
     }
 
     /**
+     * <h1>assignResourcesByType Method</h1>
+     * <p>
      * Assigns initial resource values to the village based on its type.
+     * </p>
+     * <p>
+     * The resource assignment is based on the village type, with different types having different
+     * initial resource distributions. For example, a TIMBER village will have more wood than other types.
+     * </p>
      *
      * @param type The type of the village.
      */

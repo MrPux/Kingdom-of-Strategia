@@ -7,12 +7,29 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * <h1>BellmanFord</h1>
+ * <p>
  * This class implements the Bellman-Ford algorithm to detect negative cycles in a graph.
+ * </p>
+ * <p>
+ * The BellmanFord class is used to determine if a given graph contains a negative cycle.
+ * A negative cycle is a cycle in the graph where the sum of the edge weights is negative,
+ * which can cause issues with pathfinding algorithms.
+ * </p>
  */
 public class BellmanFord {
 
     /**
+     * <h1>hasNegativeCycle Method</h1>
+     * <p>
      * Checks if a given graph (list of structure nodes) contains a negative cycle.
+     * </p>
+     * <p>
+     * This method implements the Bellman-Ford algorithm to detect negative cycles in a graph.
+     * It initializes distances to all nodes as infinity, and then relaxes all edges V-1 times,
+     * where V is the number of vertices in the graph. After this, it checks if any edge can be
+     * further relaxed, which indicates the presence of a negative cycle.
+     * </p>
      *
      * @param graph The list of structure nodes representing the graph.
      * @return True if the graph contains a negative cycle, false otherwise.

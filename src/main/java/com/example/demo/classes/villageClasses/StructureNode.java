@@ -4,9 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * <h1>StructureNode</h1>
+ * <p>
  * Represents a structure node within a village.
  * Each structure node has an ID, coordinates, a sprite for visual representation,
  * and a list of connections to other structure nodes via structure roads.
+ * </p>
+ * <p>
+ * The StructureNode class is a fundamental building block of the village structure graph.
+ * It represents a building or landmark within the village and stores information about its
+ * location, appearance, and connections to other structures.
+ * </p>
  */
 public class StructureNode {
     private int id;
@@ -16,7 +24,10 @@ public class StructureNode {
     private List<StructureRoad> connections = new ArrayList<>();
 
     /**
+     * <h1>StructureNode Constructor</h1>
+     * <p>
      * Constructs a new StructureNode object.
+     * </p>
      *
      * @param id          The ID of the structure node.
      * @param xCoordinate The x-coordinate of the structure node within the village.
@@ -31,8 +42,16 @@ public class StructureNode {
     }
 
     /**
+     * <h1>connectTo Method</h1>
+     * <p>
      * Connects this structure node to another structure node with a given weight.
      * Creates a new StructureRoad object representing the connection and adds it to the list of connections.
+     * </p>
+     * <p>
+     * This method establishes a connection between two structure nodes, creating a new StructureRoad
+     * object to represent the connection. The weight of the connection can represent various factors,
+     * such as distance or cost.
+     * </p>
      *
      * @param toStructure The structure node to connect to.
      * @param weight      The weight of the connection (e.g., distance, cost).
