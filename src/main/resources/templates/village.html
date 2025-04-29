@@ -118,21 +118,25 @@
                 th:text="${village.yCoordinate}">y</span>)</p>
         <hr>
         <!-- Village Resources Section -->
-        <h3>Resources</h3>
-        <!-- Food Resource - Dynamically set using Thymeleaf -->
-        <p><strong>Food:</strong> <span th:text="${village.food}">0</span></p>
-        <!-- Wood Resource - Dynamically set using Thymeleaf -->
-        <p><strong>Wood:</strong> <span th:text="${village.wood}">0</span></p>
-        <!-- Rocks Resource - Dynamically set using Thymeleaf -->
-        <p><strong>Rocks:</strong> <span th:text="${village.rocks}">0</span></p>
-        <!-- Iron Resource - Dynamically set using Thymeleaf -->
-        <p><strong>Iron:</strong> <span th:text="${village.iron}">0</span></p>
-        <!-- Coal Resource - Dynamically set using Thymeleaf -->
-        <p><strong>Coal:</strong> <span th:text="${village.coal}">0</span></p>
-        <!-- Villagers Count - Dynamically set using Thymeleaf -->
-        <p><strong>Villagers:</strong> <span th:text="${village.villagers}">0</span></p>
-        <!-- Knights Count - Dynamically set using Thymeleaf -->
-        <p><strong>Knights:</strong> <span th:text="${village.knights}">0</span></p>
+        <div id="resources-section" style="margin-top: 10px;">
+            <h3>Resources</h3>
+
+            <!-- Message when not collected yet -->
+            <p id="resources-message" style="color: #ca5400; font-weight: bold;">🧺 Resources have yet to be
+                collected...</p>
+
+            <!-- Real resources (hidden initially) -->
+            <div id="resources-list" style="display: none;">
+                <p><strong>Food:</strong> <span th:text="${village.food}">0</span></p>
+                <p><strong>Wood:</strong> <span th:text="${village.wood}">0</span></p>
+                <p><strong>Rocks:</strong> <span th:text="${village.rocks}">0</span></p>
+                <p><strong>Iron:</strong> <span th:text="${village.iron}">0</span></p>
+                <p><strong>Coal:</strong> <span th:text="${village.coal}">0</span></p>
+                <p><strong>Villagers:</strong> <span th:text="${village.villagers}">0</span></p>
+                <p><strong>Knights:</strong> <span th:text="${village.knights}">0</span></p>
+            </div>
+        </div>
+
         <!-- Back to Map Link - A link to return to the main map -->
         <a href="/hello" style="color:#009a7e; text-decoration: none;">← Back to Map</a>
     </div>
@@ -153,12 +157,21 @@
         </div>
 
         <!-- Select Algorithm Button -->
-        <div id="select-algorithm-button" style="display: none; margin-top: 20px; text-align: center;">
+        <div id="select-algorithm-button"
+            style="display: none; margin-top: 10px; padding-bottom: 25px; text-align: center; z-index: 1000;">
             <button id="select-algorithm"
                 style="padding: 15px 20px; font-size: 18px; background-color: #058963; color: white; border: none; border-radius: 10px; cursor: pointer;">
-                Select Algorithm
+                Select current Algorithm
             </button>
         </div>
+        <!-- Select another Algorithm Button -->
+        <!-- <div id="select-algorithm-button"
+            style="display: none; margin-top: 10px; padding-bottom: 25px; text-align: center; z-index: 1000;">
+            <button id="select-algorithm"
+                style="padding: 15px 20px; font-size: 18px; background-color: #893105; color: white; border: none; border-radius: 10px; cursor: pointer;">
+                Select another Algorithm
+            </button>
+        </div> -->
 
         <div id="scout-messanger-button" style="display: none; margin-top: 20px; text-align: center;">
             <button id="scout-messanger"
@@ -332,6 +345,7 @@
             const floydWarshallNotice = document.getElementById('algorithm-notice-floydwarshall');
 
             dijkstraCard.addEventListener('click', async () => {
+                resetGraphStyles();
                 if (!hasNegativeEdge) {
                     hideSelectAlgorithmButton();
                     const response = await fetch(`/village/${villageId}/dijkstra`);
@@ -385,6 +399,7 @@
 
 
             bellmanFordCard.addEventListener('click', async () => {
+                resetGraphStyles();
                 hideSelectAlgorithmButton();
                 const response = await fetch(`/village/${villageId}/bellmanford`);
                 const steps = await response.json();
@@ -396,6 +411,7 @@
             });
 
             floydWarshallCard.addEventListener('click', async () => {
+                resetGraphStyles();
                 hideSelectAlgorithmButton();
                 console.log("🌌 Clicking Floyd-Warshall card...");
 
@@ -869,6 +885,52 @@
 
                 messenger.style.display = 'none';
                 label.remove();
+                // 🛡️ After returning: Show resources
+                const resourcesMessage = document.getElementById('resources-message');
+                const resourcesList = document.getElementById('resources-list');
+
+                if (resourcesMessage && resourcesList) {
+                    resourcesMessage.style.display = 'none';  // hide the gathering message
+                    resourcesList.style.display = 'block';     // show the real resources
+                    // 🛡️ Update global resources with THIS village's resources
+                    globalResources.food += parseInt(document.querySelector('#resources-list span[th\\:text$="village.food"]').innerText || 0);
+                    globalResources.wood += parseInt(document.querySelector('#resources-list span[th\\:text$="village.wood"]').innerText || 0);
+                    globalResources.rocks += parseInt(document.querySelector('#resources-list span[th\\:text$="village.rocks"]').innerText || 0);
+                    globalResources.iron += parseInt(document.querySelector('#resources-list span[th\\:text$="village.iron"]').innerText || 0);
+                    globalResources.coal += parseInt(document.querySelector('#resources-list span[th\\:text$="village.coal"]').innerText || 0);
+                    globalResources.villagers += parseInt(document.querySelector('#resources-list span[th\\:text$="village.villagers"]').innerText || 0);
+                    globalResources.knights += parseInt(document.querySelector('#resources-list span[th\\:text$="village.knights"]').innerText || 0);
+
+                    console.log("✅ Resources collected so far:", globalResources);
+
+                }
+                document.getElementById('total-food').innerText = globalResources.food;
+                document.getElementById('total-wood').innerText = globalResources.wood;
+                document.getElementById('total-rocks').innerText = globalResources.rocks;
+                document.getElementById('total-iron').innerText = globalResources.iron;
+                document.getElementById('total-coal').innerText = globalResources.coal;
+                document.getElementById('total-villagers').innerText = globalResources.villagers;
+                document.getElementById('total-knights').innerText = globalResources.knights;
+
+                // Send updated resources to the server
+                fetch('/updateResources', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(globalResources)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Resources updated on server');
+                    } else {
+                        console.error('Failed to update resources on server');
+                    }
+                })
+                .finally(() => {
+                    window.location.href = "/hello";
+                });
+
             })();
         }
 
@@ -943,6 +1005,29 @@
                 }, 100); // after fadeout
             }, 1000); // 2 seconds shown
         }
+
+        function resetGraphStyles() {
+            if (!cy) return;
+
+            cy.edges().forEach(edge => {
+                edge.style({
+                    'opacity': 1,
+                    'line-color': '#888',
+                    'target-arrow-color': '#888',
+                    'line-style': edge.data('weight') < 0 ? 'dashed' : 'dashed',
+                    'line-dash-pattern': [8, 4],
+                    'width': 3
+                });
+            });
+
+            cy.nodes().forEach(node => {
+                node.style({
+                    'border-width': 0,
+                    'border-color': '#000'
+                });
+            });
+        }
+
 
 
 

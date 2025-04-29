@@ -142,11 +142,22 @@
         <!-- Sidebar -->
         <div id="sidebar">
             <h2>Controls</h2>
-            <h5>ZOOM IN - double click</h5>
-            <h5>ZOOM OUT - double click</h5>
-            <form action="/empty" method="post">
-                <button type="submit">New Gen</button>
-            </form>
+            <h5>ZOOM IN - "double click"</h5>
+            <h5>ZOOM OUT - "double click"</h5>
+            <h2>______________________</h2>
+            <h2>Resources Collected</h2>
+
+            <div
+                style="background-color: rgba(0, 102, 110, 0.517); padding-left: 20px; padding-top:5px; padding-bottom:5px; border-radius: 25px;">
+                <p><strong>🧺 Total Food:</strong> <span id="total-food">0</span></p>
+                <p><strong>🪵 Total Wood:</strong> <span id="total-wood">0</span> </p>
+                <p><strong>🪨 Total Rocks:</strong> <span id="total-rocks">0</span> </p>
+                <p><strong>⛏️ Total Iron:</strong> <span id="total-iron">0</span></p>
+                <p><strong>🛢️ Total Coal:</strong><span id="total-coal">0</span></p>
+                <p><strong>👨‍🌾 Total Villagers:</strong> <span id="total-villagers">0</span></p>
+                <p><strong>🛡️ Total Knights:</strong> <span id="total-knights">0</span></p>
+            </div>
+            <h2>______________________</h2>
             <h2>Table Info</h2>
             <ul>
                 <li th:each="road : ${roads}" th:text="'From (' + ${road.fromVillage.XCoordinate} + ', ' + ${road.fromVillage.YCoordinate} +
@@ -154,6 +165,13 @@
                                 ') W: ' + ${road.weight}">
                 </li>
             </ul>
+            <h2>______________________</h2>
+            <p>Don't Click unless to you wanna see your <br> progress reset or have finished <br>the current map, I have
+                this button for <br> Dr. Patterson to see new generations<br> and to know its not just one type,
+                <br>there could be others depending in cords <br>villages spawn.</p>
+            <form action="/empty" method="post">
+                <button type="submit">New Gen</button>
+            </form>
         </div>
     </div>
     <!--  -->
@@ -161,7 +179,6 @@
     <!-- JavaScript Section -->
     <!-- Loading the main JavaScript file -->
     <script th:src="@{/js/index.js}"></script>
-
 </body>
 
 </html>

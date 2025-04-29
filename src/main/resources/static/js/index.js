@@ -1,5 +1,9 @@
+// Load globalResources from local storage, or initialize if it doesn't exist
+var globalResources = JSON.parse(localStorage.getItem('globalResources')) || { food: 0, wood: 0, rocks: 0, iron: 0, coal: 0, villagers: 0, knights: 0 };
+
 // Wait for the DOM to load
 window.addEventListener('load', () => {
+
     // Get references to various elements
     const map = document.getElementById('map');
     const button = document.getElementById("village-action-btn");

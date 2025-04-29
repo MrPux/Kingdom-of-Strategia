@@ -3,6 +3,7 @@
  */
 package com.example.demo.controllers;
 
+import com.example.demo.classes.villageClasses.Village;
 import com.example.demo.mechanics.generation.GameMap;
 import com.example.demo.mechanics.generation.GameMapGenerator;
 import org.springframework.stereotype.Controller;
@@ -10,6 +11,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.example.demo.classes.ResourcesStorage;
 
 /**
  * <h1>MyController</h1>
@@ -47,12 +51,13 @@ public class MyController {
      * </p>
      *
      * @param model The Model to add the map data to.
+     * @param resources The ResourcesStorage instance to use for game data.
      * @return The name of the view to render (index.html).
      */
     @GetMapping("/hello")
-    public String showMap(Model model) {
+    public String showMap(Model model, @RequestParam(required = false) ResourcesStorage resources) {
         // Check if the map is empty.
-        if (map.getVillages().isEmpty()) {
+        if (map.getVillages() == null || map.getVillages().isEmpty()) {
             // If the map is empty, generate a new map.
             GameMap fresh = GameMapGenerator.generateMap(); // No Model param
             map.setVillages(fresh.getVillages()); // Set the villages on the map.
@@ -67,7 +72,20 @@ public class MyController {
         model.addAttribute("roads", map.getRoads()); // Add the roads to the model.
         model.addAttribute("mountains", map.getMountains()); // Add the mountains to the model.
         model.addAttribute("enemies", map.getEnemies()); // Add the enemies to the model.
-        model.addAttribute("startingVillage", map.getStartingVillage()); // Add the starting village to the model.
+        model.addAttribute("startingVillage", map.getStartingVillage());
+
+        ResourcesStorage resourcesStorage = (resources != null) ? resources : new ResourcesStorage();
+        if (resources != null) {
+            model.addAttribute("resourcesStorage", resources);
+        } else {
+            if (map.getVillages() != null) {
+                for (Village village : map.getVillages()) {
+                    resourcesStorage.addFromVillage(village);
+                }
+            }
+            model.addAttribute("resourcesStorage", resourcesStorage);
+        }
+
         // Return the name of the view to render.
         return "index";
     }
