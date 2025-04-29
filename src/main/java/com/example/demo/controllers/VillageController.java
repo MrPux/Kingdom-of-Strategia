@@ -5,6 +5,7 @@ import com.example.demo.classes.villageClasses.StructureNode;
 import com.example.demo.classes.villageClasses.StructureRoad;
 import com.example.demo.classes.villageClasses.Village;
 import com.example.demo.mechanics.generation.GameMap;
+import com.example.demo.mechanics.pathfinding.BellmanFord;
 import com.example.demo.mechanics.pathfinding.Dijkstra;
 import com.example.demo.utils.SpriteLoader;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -143,6 +144,12 @@ public class VillageController {
             ObjectMapper mapper = new ObjectMapper();
             String animationStepsJson = mapper.writeValueAsString(steps);
             model.addAttribute("animationSteps", animationStepsJson);
+
+
+            // 🛡️ BellmanFord animation
+            List<BellmanFord.AnimationStep> bellmanFordSteps = BellmanFord.generateBellmanFordAnimation(village.getStructuresList(), structureEdges, startId);
+            String bellmanFordAnimationStepsJson = mapper.writeValueAsString(bellmanFordSteps);
+            model.addAttribute("bellmanFordSteps", bellmanFordAnimationStepsJson);
 
         } catch (Exception e) {
             e.printStackTrace();

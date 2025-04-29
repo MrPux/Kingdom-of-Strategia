@@ -93,7 +93,7 @@ public class VillageGenerator {
             }
         }
 
-        // 5. Ultra Trick: Create at least one strong negative cycle
+        // 5. My Ultimate Trick: Create at least one strong negative cycle
         if (structures.size() >= 4) { // because size includes fountain
             int cycleSize = Math.min(rand.nextInt(3) + 3, structures.size() - 1); // -1 for fountain
             List<StructureNode> shuffled = new ArrayList<>(structures.subList(1, structures.size()));
