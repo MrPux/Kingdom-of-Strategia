@@ -464,7 +464,5 @@ public class VillageController {
     
         model.addAttribute("floydWarshallNotice", hasNegativeEdge || hasNegativeCycle);
         return ResponseEntity.ok(steps);
-    }
-
-
+    } 
 }

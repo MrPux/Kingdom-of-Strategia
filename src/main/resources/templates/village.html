@@ -154,9 +154,16 @@
 
         <!-- Select Algorithm Button -->
         <div id="select-algorithm-button" style="display: none; margin-top: 20px; text-align: center;">
-            <button
+            <button id="select-algorithm"
                 style="padding: 15px 20px; font-size: 18px; background-color: #058963; color: white; border: none; border-radius: 10px; cursor: pointer;">
                 Select Algorithm
+            </button>
+        </div>
+
+        <div id="scout-messanger-button" style="display: none; margin-top: 20px; text-align: center;">
+            <button id="scout-messanger"
+                style="padding: 15px 20px; font-size: 18px; background-color: #058963; color: white; border: none; border-radius: 10px; cursor: pointer;">
+                📜 Echo the old King’s Final Will
             </button>
         </div>
 
@@ -169,6 +176,10 @@
             <!-- Bellman-Ford Card - Card to trigger Bellman-Ford algorithm animation -->
             <div class="square-card" id="Bellman-Ford-card">Bellman-Ford</div>
         </div>
+
+        <img id="messenger" src="/assets/messanger.png"
+            style="position: absolute; width: 80px; height: auto; top: 0; left: 0; display: none; z-index: 10;">
+
     </div>
 
 
@@ -176,6 +187,8 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         // GLOBAL variables here:
+        const selectAlgorithmBtn = document.getElementById('select-algorithm');
+        const scoutMessangerBtn = document.getElementById('scout-messanger');
         const villageId = /*[[${village.id}]]*/ 0;
         let totalCost = 0; // 🛡️ global tracker
         const totalCostDisplay = document.getElementById('total-cost-display');
@@ -183,6 +196,9 @@
         var graphData = /*[[${graphData}]]*/ '[]'; // global graph JSON 
         var cy; // global Cytoscape instance
         let isAnimating = false;
+        let animationSteps = []; // 🛡️ Global to store steps for messenger
+        let finalizedPath = [];
+
 
 
         // Event listener that triggers when the document is fully loaded
@@ -322,6 +338,7 @@
                     const steps = await response.json();
 
                     animationSteps = steps;
+                    finalizedPath = steps.filter(s => s.action === "finalize"); // << save finalized path
                     playDijkstraAnimation(animationSteps);
                     console.log("✅ Dijkstra animation triggered (no negative edges).");
                 } else {
@@ -373,6 +390,9 @@
                 const steps = await response.json();
                 playBellmanFordAnimation(steps);
                 console.log("🛡️ Bellman-Ford animation triggered from server!");
+                animationSteps = steps;
+                finalizedPath = steps.filter(s => s.action === "finalize");
+                playDijkstraAnimation(animationSteps);
             });
 
             floydWarshallCard.addEventListener('click', async () => {
@@ -387,6 +407,9 @@
                     if (steps && steps.length > 0) {
                         playFloydWarshallAnimation(steps);
                         console.log("🌌 Floyd-Warshall animation triggered!");
+                        animationSteps = steps;
+                        finalizedPath = steps.filter(s => s.action === "finalize");
+                        playDijkstraAnimation(animationSteps);
                     } else {
                         console.log("🌌 No Floyd-Warshall animation steps to play.");
 
@@ -407,7 +430,7 @@
                             text-align: center;
                             opacity: 0;
                         `;
-                        newNotice.innerHTML = '⚠️ Unfortunately this village has negatives AND cycles.<br>Floyd-Warshall can process graphs with negative edge weights, however not with negative cycles.<br>Try Bellman-Ford instead!';
+                            newNotice.innerHTML = '⚠️ Unfortunately this village has negatives AND cycles.<br>Floyd-Warshall can process graphs with negative edge weights, however not with negative cycles.<br>Try Bellman-Ford instead!';
 
                             const graphSection = document.querySelector('.graph-section');
                             graphSection.insertBefore(newNotice, document.getElementById('select-algorithm-button'));
@@ -503,9 +526,9 @@
 
                 await new Promise(resolve => setTimeout(resolve, 50)); // small delay between steps
                 totalCostDisplay.innerText = "Total Cost: " + totalCost;
-                totalCostDisplay.style.display = "block"; // ✨ reveal after finish
-
+                totalCostDisplay.style.display = "block"; // ✨ reveal after finish 
             }
+            showFinalizeNoticeAndThenSelectButton();
 
             // ✨ After ALL animations, hide the remaining orange edges
             cy.edges().forEach(edge => {
@@ -519,8 +542,45 @@
                 }
             });
             isAnimating = false;
-            document.getElementById('select-algorithm-button').style.display = 'block';
+
+            finalizeNotice.style.display = "block";
+            finalizeNotice.style.opacity = 0;
+            setTimeout(() => {
+                finalizeNotice.style.transition = "opacity 0.5s ease-in";
+                finalizeNotice.style.opacity = 1;
+            }, 10);
         }
+        selectAlgorithmBtn.addEventListener('click', async () => {
+            // ✅ Hide the Select Algorithm button itself
+            hideSelectAlgorithmButton();
+
+            // ✅ Hide algorithm cards too
+            hideAlgorithmCards();
+
+            // ✅ Show Scout Messenger button
+            const scoutButtonDiv = document.getElementById('scout-messanger-button');
+            scoutButtonDiv.style.display = 'block';
+            scoutButtonDiv.style.opacity = 0;
+            setTimeout(() => {
+                scoutButtonDiv.style.transition = "opacity 0.5s ease-in";
+                scoutButtonDiv.style.opacity = 1;
+            }, 1);
+        });
+
+        // 🛡️ Now, clicking scout button moves the messenger
+        scoutMessangerBtn.addEventListener('click', async () => {
+            if (finalizedPath.length === 0) {
+                console.log("⚠️ No finalized path for messenger!");
+                return;
+            }
+
+            scoutMessangerBtn.disabled = true; // 🛡️ Disable immediately
+            scoutMessangerBtn.style.opacity = "0.6"; // optional: make it look faded
+
+            await moveMessengerAlongPath(finalizedPath);
+        });
+
+
 
         // ✅ BeellmanFord Animation Function - Animates BellmanFord's algorithm on the graph
         async function playBellmanFordAnimation(steps) {
@@ -623,7 +683,7 @@
             }, 1000);
 
             isAnimating = false;
-            document.getElementById('select-algorithm-button').style.display = 'block';
+            showFinalizeNoticeAndThenSelectButton();
         }
 
 
@@ -745,8 +805,73 @@
             }, 700);
 
             isAnimating = false;
-            document.getElementById('select-algorithm-button').style.display = 'block';
+            showFinalizeNoticeAndThenSelectButton();
         }
+
+        function moveMessengerAlongPath(steps) {
+            if (steps.length === 0) return;
+
+            const messenger = document.getElementById('messenger');
+            messenger.style.display = 'block'; // Show the messenger
+            messenger.style.position = 'absolute';
+            messenger.style.zIndex = '9999';
+            messenger.style.pointerEvents = 'none'; // Don't block mouse
+
+            const graphRect = document.getElementById('negative-cycle-graph').getBoundingClientRect();
+
+            async function walkFromTo(fromNode, toNode, forward = true) {
+                const start = cy.$id(fromNode).renderedPosition();
+                const end = cy.$id(toNode).renderedPosition();
+
+                const stepsCount = 100; // how many points between start and end
+                for (let i = 0; i <= stepsCount; i++) {
+                    const t = forward ? i / stepsCount : (stepsCount - i) / stepsCount;
+                    const x = start.x * (1 - t) + end.x * t;
+                    const y = start.y * (1 - t) + end.y * t;
+
+                    messenger.style.left = `${graphRect.left + x - 40}px`; // -40 to center
+                    messenger.style.top = `${graphRect.top + y - 60}px`;   // -60 to center vertically
+
+                    await new Promise(resolve => setTimeout(resolve, 10)); // 10ms per small step
+                }
+            }
+
+            async function walkFullPath(pathSteps, forward = true) {
+                for (let i = 0; i < pathSteps.length; i++) {
+                    const step = forward ? pathSteps[i] : pathSteps[pathSteps.length - 1 - i];
+                    await walkFromTo(step.from, step.to, forward);
+                }
+            }
+
+            (async () => {
+                await walkFullPath(steps, true); // 🚶 Go forward
+
+                // 🗨️ Create returning message
+                const label = document.createElement('div');
+                label.innerText = '📜 Returning with news...';
+                label.style.marginBottom = '10px';
+                label.style.padding = '5px 10px';
+                label.style.backgroundColor = '#333';
+                label.style.color = 'white';
+                label.style.borderRadius = '8px';
+                label.style.fontWeight = 'bold';
+                label.style.fontSize = '25px';
+                label.style.textAlign = 'center';
+                label.style.zIndex = '1000';
+
+                const graphSection = document.querySelector('.graph-section');
+                const totalCostDiv = document.getElementById('total-cost-display');
+                graphSection.insertBefore(label, totalCostDiv);
+
+                await new Promise(r => setTimeout(r, 1500));
+
+                await walkFullPath(steps, false); // 🚶 Come back
+
+                messenger.style.display = 'none';
+                label.remove();
+            })();
+        }
+
 
         var hasNegativeEdge = /*[[${hasNegativeEdge}]]*/ false; // only declare ONCE
 
@@ -775,32 +900,50 @@
                 }, 500); // wait for fade & shrink to finish
             }
         }
-        function hideSelectAlgorithmButton() {
-            const selectButtonDiv = document.getElementById('select-algorithm-button');
-            if (selectButtonDiv.style.display !== "none") {
-                selectButtonDiv.style.transition = "opacity 0.5s ease-out, margin 0.5s ease-out, height 0.5s ease-out";
-                selectButtonDiv.style.opacity = 0;
-                selectButtonDiv.style.marginTop = "0px"; // 👈 shrink the margin
-                selectButtonDiv.style.height = "0px";    // 👈 shrink the height
+
+        function hideAlgorithmCards() {
+            const bottomCards = document.querySelector('.bottom-cards');
+            if (bottomCards) {
+                bottomCards.style.transition = "opacity 0.5s ease-out, margin 0.5s ease-out, height 0.5s ease-out";
+                bottomCards.style.opacity = 0;
+                bottomCards.style.marginTop = "0px";
+                bottomCards.style.height = "0px";
 
                 setTimeout(() => {
-                    selectButtonDiv.style.display = "none";
-                }, 500); // wait for fade & shrink to finish
+                    bottomCards.style.display = "none";
+                }, 500);
             }
         }
-        function hideSelectAlgorithmButton() {
-            const selectButtonDiv = document.getElementById('select-algorithm-button');
-            if (selectButtonDiv.style.display !== "none") {
-                selectButtonDiv.style.transition = "opacity 0.5s ease-out, margin 0.5s ease-out, height 0.5s ease-out";
-                selectButtonDiv.style.opacity = 0;
-                selectButtonDiv.style.marginTop = "0px"; // 👈 shrink the margin
-                selectButtonDiv.style.height = "0px";    // 👈 shrink the height
+
+        function showFinalizeNoticeAndThenSelectButton() {
+            const finalizeNotice = document.getElementById('finalize-notice');
+            finalizeNotice.style.display = "block";
+            finalizeNotice.style.opacity = 0;
+
+            setTimeout(() => {
+                finalizeNotice.style.transition = "opacity 0.5s ease-in";
+                finalizeNotice.style.opacity = 1;
+            }, 10);
+
+            // ⏳ After 2 seconds, fade it out
+            setTimeout(() => {
+                finalizeNotice.style.transition = "opacity 0.5s ease-out";
+                finalizeNotice.style.opacity = 0;
 
                 setTimeout(() => {
-                    selectButtonDiv.style.display = "none";
-                }, 500); // wait for fade & shrink to finish
-            }
+                    finalizeNotice.style.display = "none";
+                    // ✨ Now show select algorithm button
+                    const selectButtonDiv = document.getElementById('select-algorithm-button');
+                    selectButtonDiv.style.display = 'block';
+                    selectButtonDiv.style.opacity = 0;
+                    setTimeout(() => {
+                        selectButtonDiv.style.transition = "opacity 0.5s ease-in";
+                        selectButtonDiv.style.opacity = 1;
+                    }, 10);
+                }, 100); // after fadeout
+            }, 1000); // 2 seconds shown
         }
+
 
 
         /*]]>*/
