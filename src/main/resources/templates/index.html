@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<!--
+    This is the main HTML file for the Kingdom of Strategia game.
+    It defines the structure of the game map and the sidebar,
+    and includes links to CSS and JavaScript files.
+-->
 <html lang="en">
 
 <head>
@@ -7,27 +12,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Kingdom of Strategia</title>
 
+    <!-- Link to the CSS stylesheet -->
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
 
-    <!-- Header Section -->
+    <!-- ========================= Header Section ========================= -->
     <header>
+        <!-- Navigation Bar -->
         <nav>
+            <!-- Game Title -->
             <h1>Kingdom of Strategia</h1>
         </nav>
     </header>
 
-    <!-- Main Container -->
+    <!-- ========================= Main Container ========================= -->
     <div id="container">
 
-        <!-- Map Wrapper -->
+        <!-- ========================= Map Wrapper ========================= -->
         <div id="map-wrapper">
-            <!-- Map Area -->
+            <!-- ========================= Map Area ========================= -->
             <div id="map">
 
-                <!-- Village Action Button -->
+                <!-- ========================= Village Action Button ========================= -->
+                <!--
+                    Button to view village details.
+                    This button is displayed when hovering over a village.
+                -->
                 <button id="village-action-btn" style="
                     position: absolute;
                     z-index: 10;
@@ -42,7 +54,11 @@
                     View
                 </button>
 
-                <!-- Village Tooltip -->
+                <!-- ========================= Village Tooltip ========================= -->
+                <!--
+                    Tooltip to display village information on hover.
+                    This tooltip is displayed when hovering over a village.
+                -->
                 <div id="village-tooltip" style="
                     position: absolute;
                     display: none;
@@ -55,7 +71,9 @@
                     white-space: nowrap;
                     transform: translate(-50%, -100%);
 ">
+                    <!-- Text content of the tooltip -->
                     <span id="tooltip-text">Village</span>
+                    <!-- CSS triangle to point to the village -->
                     <div style="
                         position: absolute;
                         bottom: -8px;
@@ -69,7 +87,11 @@
                     "></div>
                 </div>
 
-                <!-- Enemy Tooltip -->
+                <!-- ========================= Enemy Tooltip ========================= -->
+                <!--
+                    Tooltip to display enemy information on hover.
+                    This tooltip is displayed when hovering over an enemy.
+                -->
                 <div id="enemy-tooltip" style="
                     position: absolute;
                     display: none;
@@ -84,18 +106,27 @@
                     pointer-events: none;
                     box-shadow: 0 0 6px rgba(0,0,0,0.3);
                 ">
+                    <!-- Text content of the tooltip -->
                     <span id="enemy-tooltip-text">Lvl 1</span>
                 </div>
 
 
 
-                <!-- Game Lines (Roads) -->
+                <!-- ========================= Game Lines (Roads) ========================= -->
+                <!--
+                    SVG element to render the roads between villages.
+                    Uses Thymeleaf to iterate through the list of roads and draw lines.
+                -->
                 <svg id="game-lines">
+                    <!-- Iterate through each road in the list -->
                     <th:block th:each="road : ${roads}">
+                        <!-- Check if the road and its villages are not null -->
                         <th:block th:if="${road != null and road.fromVillage != null and road.toVillage != null}">
+                            <!-- Display the weight of the road -->
                             <text th:attr="x=${(road.fromVillage.xCoordinate + road.toVillage.xCoordinate) / 2},
                                            y=${(road.fromVillage.yCoordinate + road.toVillage.yCoordinate) / 2 - 10}"
                                 font-size="12" fill="black" th:text="'W: ' + ${road.weight}"></text>
+                            <!-- Draw a line representing the road -->
                             <line th:attr="x1=${road.fromVillage.xCoordinate + 30},
                                            y1=${road.fromVillage.yCoordinate + 30},
                                            x2=${road.toVillage.xCoordinate + 30},
@@ -104,16 +135,26 @@
                     </th:block>
                 </svg>
 
-                <!-- Mountains -->
+                <!-- ========================= Mountains ========================= -->
+                <!--
+                    Block to render mountains on the map.
+                    Uses Thymeleaf to iterate through the list of mountains and display them.
+                -->
                 <th:block th:each="mountain : ${mountains}">
+                    <!-- Display each mountain image -->
                     <img th:src="@{/assets/mountains/{file}(file=${mountain.sprite})}"
                         th:style="'left: ' + ${mountain.XCoordinate} + 'px; top: ' + ${mountain.YCoordinate} + 'px;'"
                         width="60" height="60" />
 
                 </th:block>
 
-                <!-- Villages -->
+                <!-- ========================= Villages ========================= -->
+                <!--
+                    Block to render villages on the map.
+                    Uses Thymeleaf to iterate through the list of villages and display them.
+                -->
                 <th:block th:each="village : ${villages}">
+                    <!-- Display each village image -->
                     <img class="village-img" th:src="@{${village.sprite}}" th:data-village-id="${village.id}"
                         th:data-population="${village.population}" th:data-structures="${village.structures}"
                         th:data-x="${village.xCoordinate}" th:data-y="${village.yCoordinate}"
@@ -122,61 +163,93 @@
 
                 </th:block>
 
-                <!-- Enemies -->
+                <!-- ========================= Enemies ========================= -->
+                <!--
+                    Block to render enemies on the map.
+                    Uses Thymeleaf to iterate through the list of enemies and display them.
+                -->
                 <!-- Corrected enemy rendering block -->
                 <th:block th:each="enemy : ${enemies}">
+                    <!-- Display each enemy image -->
                     <img class="enemy-img" th:src="@{/assets/enemies/{file}(file=${enemy.sprite})}"
                         th:data-level="${enemy.level}"
-                        th:style="'left: ' + ${enemy.xCoordinate} + 'px; top: ' + ${enemy.yCoordinate} + 'px;'"
+                        th:style="'left: ' + ${enemy.xCoordinate} + 'px; top: ' + ${enemy.YCoordinate} + 'px;'"
                         width="30" height="30" />
                 </th:block>
 
 
 
 
+                <!-- Spyglass Overlay -->
                 <img id="spyglass-overlay" src="/assets/spyglass.png" alt="Spyglass View"
                     style="width: 100%; height: 100%;" />
             </div>
         </div>
 
-        <!-- Sidebar -->
+        <!-- ========================= Sidebar ========================= -->
+        <!-- Sidebar containing controls and resources information -->
         <div id="sidebar">
+            <!-- Controls Section -->
             <h2>Controls</h2>
+            <!-- Zoom Instructions -->
             <h5>ZOOM IN - "double click"</h5>
+            <!-- Zoom Instructions -->
             <h5>ZOOM OUT - "double click"</h5>
+            <!-- Separator -->
             <h2>______________________</h2>
+            <!-- Resources Collected Section -->
             <h2>Resources Collected</h2>
 
+            <!-- Resources Display -->
             <div
                 style="background-color: rgba(0, 102, 110, 0.517); padding-left: 20px; padding-top:5px; padding-bottom:5px; border-radius: 25px;">
+                <!-- Total Food -->
                 <p><strong>🧺 Total Food:</strong> <span id="total-food">0</span></p>
+                <!-- Total Wood -->
                 <p><strong>🪵 Total Wood:</strong> <span id="total-wood">0</span> </p>
+                <!-- Total Rocks -->
                 <p><strong>🪨 Total Rocks:</strong> <span id="total-rocks">0</span> </p>
+                <!-- Total Iron -->
                 <p><strong>⛏️ Total Iron:</strong> <span id="total-iron">0</span></p>
+                <!-- Total Coal -->
                 <p><strong>🛢️ Total Coal:</strong><span id="total-coal">0</span></p>
+                <!-- Total Villagers -->
                 <p><strong>👨‍🌾 Total Villagers:</strong> <span id="total-villagers">0</span></p>
+                <!-- Total Knights -->
                 <p><strong>🛡️ Total Knights:</strong> <span id="total-knights">0</span></p>
             </div>
+            <!-- Separator -->
             <h2>______________________</h2>
+            <!-- Table Info Section -->
             <h2>Table Info</h2>
+            <!-- List of Roads -->
             <ul>
+                <!-- Iterate through each road and display its information -->
                 <li th:each="road : ${roads}" th:text="'From (' + ${road.fromVillage.XCoordinate} + ', ' + ${road.fromVillage.YCoordinate} +
                                 ') To (' + ${road.toVillage.XCoordinate} + ', ' + ${road.toVillage.YCoordinate} +
                                 ') W: ' + ${road.weight}">
                 </li>
             </ul>
+            <!-- Separator -->
             <h2>______________________</h2>
+            <!-- New Generation Button Instructions -->
+            <!--
+                This paragraph explains the purpose of the "New Gen" button.
+                It warns the user not to click it unless they want to reset their progress.
+            -->
             <p>Don't Click unless to you wanna see your <br> progress reset or have finished <br>the current map, I have
                 this button for <br> Dr. Patterson to see new generations<br> and to know its not just one type,
                 <br>there could be others depending in cords <br>villages spawn.</p>
+            <!-- New Generation Form -->
             <form action="/empty" method="post">
+                <!-- New Generation Button -->
                 <button type="submit">New Gen</button>
             </form>
         </div>
     </div>
     <!--  -->
 
-    <!-- JavaScript Section -->
+    <!-- ========================= JavaScript Section ========================= -->
     <!-- Loading the main JavaScript file -->
     <script th:src="@{/js/index.js}"></script>
 </body>

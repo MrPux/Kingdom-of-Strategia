@@ -5,12 +5,6 @@ import com.example.demo.classes.villageClasses.StructureRoad;
 
 import java.util.*;
 
-/**
- *  <h1>Dijkstra's Shortest Path Algorithm</h1>
- *  This class implements Dijkstra's algorithm to find the shortest paths from a starting node
- *  to all other nodes in a graph. It also generates animation steps to visualize the algorithm's progress.
- *  The graph is represented by a list of nodes (StructureNode) and edges (StructureRoad).
- */
 public class Dijkstra {
 
     /**
@@ -89,7 +83,7 @@ public class Dijkstra {
         for (StructureNode node : nodes) {
             distances.put(String.valueOf(node.getId()), Integer.MAX_VALUE);
         }
-        // Set the distance from the start node to itself to 0.
+        // sets the distance from the start node to itself to 0.
         distances.put(startId, 0);
 
         // The main loop of Dijkstra's algorithm.

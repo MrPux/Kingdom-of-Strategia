@@ -46,6 +46,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class VillageController {
 
+    /**
+     * The game map.
+     */
     private final GameMap map;
 
     /**
@@ -57,6 +60,7 @@ public class VillageController {
      * @param map The game map.
      */
     public VillageController(GameMap map) {
+        // ========================= Set the game map =========================
         this.map = map;
     }
 
@@ -77,56 +81,130 @@ public class VillageController {
      */
     @GetMapping("/village/{id}")
     public String showVillage(@PathVariable int id, Model model) {
-        // Retrieve the village from the game map based on the provided ID.
+        // ========================= Retrieve the village from the game map based on the provided ID =========================
+        /**
+         * Retrieve the village from the game map based on the provided ID.
+         */
         Village village = map.getVillages().stream()
+                /**
+                 * Filter the villages to find the one with the matching ID.
+                 */
                 .filter(v -> v.getId() == id)
+                /**
+                 * Get the first matching village or return null if not found.
+                 */
                 .findFirst()
                 .orElse(null);
 
-        // If the village is not found, redirect to the home page.
+        // ========================= If the village is not found, redirect to the home page =========================
+        /**
+         * If the village is not found, redirect to the home page.
+         */
         if (village == null) {
             return "redirect:/";
         }
 
-        // Check for negative edges in the village structure.
+        // ========================= Check for negative edges in the village structure =========================
+        /**
+         * Initialize a flag to check for negative edges.
+         */
         boolean hasNegativeEdge = false;
 
+        // ========================= Iterate through each structure node in the village =========================
+        /**
+         * Iterate through each structure node in the village.
+         */
         for (StructureNode node : village.getStructuresList()) {
+            // ========================= Iterate through each road connected to the node =========================
+            /**
+             * Iterate through each road connected to the node.
+             */
             for (StructureRoad road : node.getConnections()) {
+                /**
+                 * Print a message to the console to check the road.
+                 */
                 System.out.println("Checking road: " + road.getFromStructure().getId() + " -> " + road.getToStructure().getId() + " weight: " + road.getWeight());
+                // ========================= If the road has a negative weight, set hasNegativeEdge to true and break =========================
+                /**
+                 * If the road has a negative weight, set hasNegativeEdge to true and break.
+                 */
                 if (road.getWeight() < 0) {
                     hasNegativeEdge = true;
                     break;
                 }
             }
+            // ========================= If a negative edge is found, break the outer loop =========================
+            /**
+             * If a negative edge is found, break the outer loop.
+             */
             if (hasNegativeEdge) break;
         }
 
-        // Add attributes to the model for rendering in the view.
+        // ========================= Add attributes to the model for rendering in the view =========================
+        /**
+         * Add attributes to the model for rendering in the view.
+         */
         model.addAttribute("hasNegativeEdge", hasNegativeEdge);
+        /**
+         * Add the village to the model.
+         */
         model.addAttribute("village", village);
+        /**
+         * Add the hasNegativeCycle flag to the model.
+         */
         model.addAttribute("hasNegativeCycle", village.hasNegativeCycle());
 
-        // Generate graph data for the village.
+        // ========================= Generate graph data for the village =========================
         try {
+            /**
+             * Generate graph data for the village.
+             */
             String graphData = generateGraphData(village);
+            /**
+             * Add the graph data to the model.
+             */
             model.addAttribute("graphData", graphData);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+            /**
+             * If there is an error, add an empty JSON array to the model.
+             */
             model.addAttribute("graphData", "[]");
         }
 
-        // Get the fountain sprite for the village type.
+        // ========================= Get the fountain sprite for the village type =========================
+        /**
+         * Get the fountain sprite for the village type.
+         */
         String fountainSprite = SpriteLoader.getFountainSprite(village.getType());
+        /**
+         * Add the fountain sprite to the model.
+         */
         model.addAttribute("fountainSprite", fountainSprite);
 
-        // 🛠️ Dijkstra steps generation:
+        // ========================= 🛠️ Dijkstra steps generation =========================
         try {
             String startId = null;
 
+            // ========================= Iterate through each structure node in the village =========================
+            /**
+             * Iterate through each structure node in the village.
+             */
             for (StructureNode node : village.getStructuresList()) {
+                // ========================= Skip fountain nodes =========================
+                /**
+                 * Skip fountain nodes.
+                 */
                 if (!node.getSprite().contains("Fountain")) { // 🚿 skip fountain
+                    // ========================= Iterate through each road connected to the node =========================
+                    /**
+                     * Iterate through each road connected to the node.
+                     */
                     for (StructureRoad road : node.getConnections()) {
+                        // ========================= If the road connects to the node, set the start ID and break =========================
+                        /**
+                         * If the road connects to the node, set the start ID and break.
+                         */
                         if (road.getFromStructure().getId() == node.getId() || road.getToStructure().getId() == node.getId()) {
                             startId = String.valueOf(node.getId());
                             System.out.println("🧭 Found valid starting node: " + startId);
@@ -134,37 +212,65 @@ public class VillageController {
                         }
                     }
                 }
+                // ========================= If a start ID is found, break the outer loop =========================
+                /**
+                 * If a start ID is found, break the outer loop.
+                 */
                 if (startId != null) break;
             }
 
+            // ========================= If no valid start node is found, use a fallback =========================
+            /**
+             * If no valid start node is found, use a fallback.
+             */
             if (startId == null) {
                 System.out.println("⚠️ No valid start node found for Dijkstra!");
                 startId = "0"; // fallback
             }
 
 
-            // 🔥 Correct way: get edges from the nodes themselves
+            // ========================= 🔥 Correct way: get edges from the nodes themselves =========================
             List<StructureRoad> structureEdges = new ArrayList<>();
+            // ========================= Iterate through each structure node in the village =========================
+            /**
+             * Iterate through each structure node in the village.
+             */
             for (StructureNode node : village.getStructuresList()) {
+                // ========================= Add all connections to the list of structure edges =========================
+                /**
+                 * Add all connections to the list of structure edges.
+                 */
                 structureEdges.addAll(node.getConnections());
             }
 
-            // Generate Dijkstra animation steps.
+            // ========================= Generate Dijkstra animation steps =========================
+            /**
+             * Generate Dijkstra animation steps.
+             */
             List<Dijkstra.AnimationStep> steps = Dijkstra.generateDijkstraAnimation(
                     village.getStructuresList(),
                     structureEdges, // ✅ Correct list
                     startId
             );
 
-            // Convert animation steps to JSON format.
+            // ========================= Convert animation steps to JSON format =========================
+            /**
+             * Convert animation steps to JSON format.
+             */
             ObjectMapper mapper = new ObjectMapper();
             System.out.println("Number of animation steps: " + steps.size());
             String animationStepsJson = mapper.writeValueAsString(steps);
+            /**
+             * Add the animation steps to the model.
+             */
             model.addAttribute("animationSteps", animationStepsJson);
   
 
         } catch (Exception e) {
             e.printStackTrace();
+            /**
+             * If there is an error, add an empty JSON array to the model.
+             */
             model.addAttribute("animationSteps", "[]");
         }
 
@@ -345,30 +451,43 @@ public class VillageController {
         isConnected.put(to.getId(), true);
     }
 
+    /**
+     * Finds a valid starting node for pathfinding algorithms.
+     * @param nodes The list of structure nodes in the village.
+     * @return The ID of a valid starting node, or "0" if none is found.
+     */
     private String findValidStartNode(List<StructureNode> nodes) {
+        // ========================= Iterate through each node =========================
         for (StructureNode node : nodes) {
+            // ========================= Check if the node is not a fountain =========================
             if (!node.getSprite().contains("Fountain")) {
+                // ========================= Return the ID of the node if it's not a fountain =========================
                 return String.valueOf(node.getId());
             }
         }
+        // ========================= Return 0 as a fallback if no valid start node is found =========================
         return "0"; // fallback
-    }    
+    }
 
     @GetMapping("/village/{id}/dijkstra")
     public ResponseEntity<List<Dijkstra.AnimationStep>> getDijkstraSteps(@PathVariable int id) {
+        // ========================= Retrieve the village from the game map based on the provided ID =========================
         Village village = map.getVillages().stream()
                 .filter(v -> v.getId() == id)
                 .findFirst()
                 .orElse(null);
     
+        // ========================= If the village is not found, return a 404 Not Found response =========================
         if (village == null) {
             return ResponseEntity.notFound().build();
         }
     
+        // ========================= Get the list of structure nodes from the village =========================
         List<StructureNode> nodes = village.getStructuresList();
         
-        // 🔥 Correct way: collect edges from nodes, not from village
+        // ========================= 🔥 Correct way: collect edges from nodes, not from village =========================
         List<StructureRoad> structureEdges = new ArrayList<>();
+        // ========================= Iterate through each structure node and add its connections to the list of structure edges =========================
         for (StructureNode node : nodes) {
             structureEdges.addAll(node.getConnections());
         }
@@ -381,19 +500,23 @@ public class VillageController {
     
     
 
-    // 🛡️ BellmanFord animation
+    // ========================= 🛡️ BellmanFord animation =========================
     @GetMapping("/village/{id}/bellmanford")
     public ResponseEntity<List<BellmanFord.AnimationStep>> getBellmanFordAnimation(@PathVariable int id) {
+        // ========================= Retrieve the village from the game map based on the provided ID =========================
         Village village = map.getVillages().stream()
                 .filter(v -> v.getId() == id)
                 .findFirst()
                 .orElse(null);
 
+        // ========================= If the village is not found, return a 404 Not Found response =========================
         if (village == null) {
             return ResponseEntity.notFound().build();
         }
 
+        // ========================= Get the list of structure edges from the village =========================
         List<StructureRoad> structureEdges = new ArrayList<>();
+        // ========================= Iterate through each structure node and add its connections to the list of structure edges =========================
         for (StructureNode node : village.getStructuresList()) {
             structureEdges.addAll(node.getConnections());
         }

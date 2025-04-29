@@ -1,7 +1,22 @@
-// Load globalResources from local storage, or initialize if it doesn't exist
+/*
+ * @file index.js
+ * @description This file contains the main JavaScript logic for the game map and village interaction.
+ */
+
+// ============================================================================
+//  Initialization
+// ============================================================================
+
+/*
+ * Load global resources from local storage or initialize if they don't exist.
+ * These resources represent the player's accumulated resources.
+ */
 var globalResources = JSON.parse(localStorage.getItem('globalResources')) || { food: 0, wood: 0, rocks: 0, iron: 0, coal: 0, villagers: 0, knights: 0 };
 
-// Wait for the DOM to load
+/*
+ * Wait for the DOM to load before executing the main script.
+ * This ensures that all HTML elements are available before attaching event listeners.
+ */
 window.addEventListener('load', () => {
 
     // Get references to various elements
@@ -24,29 +39,42 @@ window.addEventListener('load', () => {
         top: wrapper.scrollTop
     };
 
-    // Button hover effects
+    // ============================================================================
+    //  Button Hover Effects
+    // ============================================================================
+
+    /*
+     * Add event listener for mouseenter event on the village action button.
+     * This changes the button's background and text color when the mouse cursor enters the button area.
+     */
     button.addEventListener("mouseenter", () => {
-        // This event listener is triggered when the mouse enters the button area.
-        // State change: Change background color and text color on mouse enter
-        button.style.backgroundColor = "rgba(0, 102, 110, 0.517)"; // Change the background color.
-        button.style.color = "white"; // Change the text color.
+        button.style.backgroundColor = "rgba(0, 102, 110, 0.517)";
+        button.style.color = "white";
     });
 
+    /*
+     * Add event listener for mouseleave event on the village action button.
+     * This reverts the button's background and text color and hides the button when the mouse cursor leaves the button area.
+     */
     button.addEventListener("mouseleave", () => {
-        // This event listener is triggered when the mouse leaves the button area.
-        // State change: Change background color, text color, and hide the button on mouse leave
-        button.style.backgroundColor = "rgba(66, 66, 66, 0.517)"; // Change the background color.
-        button.style.color = "white"; // Change the text color.
-        button.style.display = "none"; // Hide the button.
+        button.style.backgroundColor = "rgba(66, 66, 66, 0.517)";
+        button.style.color = "white";
+        button.style.display = "none";
     });
 
-    // Village image hover effects
+    // ============================================================================
+    //  Village Image Hover Effects
+    // ============================================================================
+
+    /*
+     * Iterate over each village image and attach mouseenter and mouseleave event listeners.
+     * These listeners control the display of the village tooltip and action button.
+     */
     villageImgs.forEach(img => {
         img.addEventListener("mouseenter", () => {
-            // This event listener is triggered when the mouse enters a village image area.
-            clearTimeout(hideButtonTimeout); // Clear any existing timeout to hide the button.
-            const rect = img.getBoundingClientRect(); // Get the bounding rectangle of the image.
-            const mapRect = map.getBoundingClientRect(); // Get the bounding rectangle of the map.
+            clearTimeout(hideButtonTimeout);
+            const rect = img.getBoundingClientRect();
+            const mapRect = map.getBoundingClientRect();
 
             const left = rect.left - wrapper.getBoundingClientRect().left + img.offsetWidth / 2;
             const top = rect.top - wrapper.getBoundingClientRect().top - 10;
@@ -104,143 +132,314 @@ window.addEventListener('load', () => {
 
     });
 
-    // Enemy image hover effects
-    const enemyImgs = document.querySelectorAll(".enemy-img"); // Select all enemy images.
-    const enemyTooltip = document.getElementById("enemy-tooltip"); // Get the enemy tooltip element.
-    const enemyTooltipText = document.getElementById("enemy-tooltip-text"); // Get the enemy tooltip text element.
+    // ============================================================================
+    //  Enemy Image Hover Effects
+    // ============================================================================
+
+    /*
+     * Iterate over each enemy image and attach mouseenter and mouseleave event listeners.
+     * These listeners control the display of the enemy tooltip.
+     */
+    const enemyImgs = document.querySelectorAll(".enemy-img");
+    const enemyTooltip = document.getElementById("enemy-tooltip");
+    const enemyTooltipText = document.getElementById("enemy-tooltip-text");
 
     enemyImgs.forEach(enemy => {
+        /*
+         * Add event listener for mouseenter event on each enemy image.
+         * This displays the enemy tooltip with the enemy's level.
+         */
         enemy.addEventListener("mouseenter", () => {
-            // This event listener is triggered when the mouse enters an enemy image area.
-            const level = enemy.dataset.level; // Get the level of the enemy.
-            const rect = enemy.getBoundingClientRect(); // Get the bounding rectangle of the enemy image.
-            const mapRect = map.getBoundingClientRect(); // Get the bounding rectangle of the map.
+            const level = enemy.dataset.level;
+            const rect = enemy.getBoundingClientRect();
+            const mapRect = map.getBoundingClientRect();
 
             const left = rect.left - mapRect.left + enemy.offsetWidth / 2;
             const top = rect.top - mapRect.top - 10;
 
-            enemyTooltipText.textContent = `Lvl ${level}`; // Set the text content of the enemy tooltip.
-            // State change: Show the enemy tooltip
-            enemyTooltip.style.left = `${left}px`; // Set the left position of the tooltip.
-            enemyTooltip.style.top = `${top}px`; // Set the top position of the tooltip.
-            enemyTooltip.style.display = "block"; // Show the tooltip.
+            enemyTooltipText.textContent = `Lvl ${level}`;
+            enemyTooltip.style.left = `${left}px`;
+            enemyTooltip.style.top = `${top}px`;
+            enemyTooltip.style.display = "block";
         });
 
+/*
+ * @file index.js
+ * @description This file contains the main JavaScript logic for the game map and village interaction.
+ */
         enemy.addEventListener("mouseleave", () => {
-            // This event listener is triggered when the mouse leaves an enemy image area.
-            // State change: Hide the enemy tooltip
-            enemyTooltip.style.display = "none"; // Hide the tooltip.
+            enemyTooltip.style.display = "none";
         });
     });
 
 
+/*
+ * Wait for the DOM to load before executing the main script.
+ * This ensures that all HTML elements are available before attaching event listeners.
+ */
     button.addEventListener("mouseleave", () => {
+        /**
+         * Set a timeout to hide the button after 3 seconds.
+         */
         hideButtonTimeout = setTimeout(() => {
-            // State change: Hide the button after a delay
+            /**
+             * Hide the button.
+             */
             button.style.display = "none";
-        }, 3000); // match the same 3-second delay
+        }, 3000);
     });
 
+    // ============================================================================
+    //  Button Click Event
+    // ============================================================================
 
-    // Button click event to redirect to village page
+    /**
+     * Add event listener for click event on the village action button.
+     * This redirects the user to the village page.
+     */
     button.addEventListener("click", () => {
-        // This event listener is triggered when the button is clicked.
-        const villageId = button.dataset.villageId; // Get the village ID from the button's data attribute.
-        console.log("Redirecting to village ID:", villageId); // Log the village ID to the console.
-        // State change: Redirect to the village page
-        window.location.href = "/village/" + villageId; // Redirect the user to the village page.
+        /**
+         * Get the village ID from the button's data attribute.
+         */
+        const villageId = button.dataset.villageId;
+        /**
+         * Log the village ID to the console.
+         */
+        console.log("Redirecting to village ID:", villageId);
+        /**
+         * Redirect the user to the village page.
+         */
+        window.location.href = "/village/" + villageId;
     });
 
 
-    // Function to update spyglass position
+    /**
+     * Function to update spyglass position based on the given coordinates.
+     * @param {number} x - The x coordinate.
+     * @param {number} y - The y coordinate.
+     */
     function updateSpyglassPosition(x, y) {
-        // This function updates the position of the spyglass overlay based on the given coordinates.
-        const wrapperRect = wrapper.getBoundingClientRect(); // Get the bounding rectangle of the map wrapper.
-        const mapRect = map.getBoundingClientRect(); // Get the bounding rectangle of the map.
-        const screenX = x - wrapper.scrollLeft + mapRect.left; // Calculate the X coordinate of the spyglass position relative to the screen.
-        const screenY = y - wrapper.scrollTop + mapRect.top; // Calculate the Y coordinate of the spyglass position relative to the screen.
+        /**
+         * Get the bounding rectangle of the map wrapper.
+         */
+        const wrapperRect = wrapper.getBoundingClientRect();
+        /**
+         * Get the bounding rectangle of the map.
+         */
+        const mapRect = map.getBoundingClientRect();
+        /**
+         * Calculate the X coordinate of the spyglass position relative to the screen.
+         */
+        const screenX = x - wrapper.scrollLeft + mapRect.left;
+        /**
+         * Calculate the Y coordinate of the spyglass position relative to the screen.
+         */
+        const screenY = y - wrapper.scrollTop + mapRect.top;
 
-        spyglass.style.left = `${screenX - 60}px`; // Set the left position of the spyglass.
-        spyglass.style.top = `${screenY - 10}px`; // Set the top position of the spyglass.
-        spyglass.style.width = '65px'; // Set the width of the spyglass.
-        spyglass.style.height = 'auto'; // Set the height of the spyglass.
-        spyglass.style.transform = `scale(${zoomFactor})`; // Set the scale of the spyglass.
+        /**
+         * Set the left position of the spyglass.
+         */
+        spyglass.style.left = `${screenX - 60}px`;
+        /**
+         * Set the top position of the spyglass.
+         */
+        spyglass.style.top = `${screenY - 10}px`;
+        /**
+         * Set the width of the spyglass.
+         */
+        spyglass.style.width = '65px';
+        /**
+         * Set the height of the spyglass.
+         */
+        spyglass.style.height = 'auto';
+        /**
+         * Set the scale of the spyglass.
+         */
+        spyglass.style.transform = `scale(${zoomFactor})`;
     }
 
-    // Double click event to zoom in and out
+    // ============================================================================
+    //  Double Click Event
+    // ============================================================================
+
+    /**
+     * Add event listener for double click event on the map.
+     * This zooms in and out of the map.
+     */
     map.addEventListener('dblclick', (e) => {
-        // This event listener is triggered when the map is double-clicked.
-        const rect = map.getBoundingClientRect(); // Get the bounding rectangle of the map.
-        const x = e.clientX - rect.left + wrapper.scrollLeft; // Calculate the X coordinate of the double-click relative to the map.
-        const y = e.clientY - rect.top + wrapper.scrollTop; // Calculate the Y coordinate of the double-click relative to the map.
+        /**
+         * Get the bounding rectangle of the map.
+         */
+        const rect = map.getBoundingClientRect();
+        /**
+         * Calculate the X coordinate of the double-click relative to the map.
+         */
+        const x = e.clientX - rect.left + wrapper.scrollLeft;
+        /**
+         * Calculate the Y coordinate of the double-click relative to the map.
+         */
+        const y = e.clientY - rect.top + wrapper.scrollTop;
 
-        // State change: Toggle zoomedIn state
-        zoomedIn = !zoomedIn; // Toggle the zoomedIn state.
+        /**
+         * Toggle the zoomedIn state.
+         */
+        zoomedIn = !zoomedIn;
 
+        /**
+         * Add event listener for mousemove event on the document.
+         */
         document.addEventListener('mousemove', (e) => {
-            // This event listener is triggered when the mouse moves over the document.
+            /**
+             * If the map is zoomed in.
+             */
             if (zoomedIn) {
-                // If the map is zoomed in:
-                const offsetX = 60; // Define an X offset for the spyglass position.
-                const offsetY = 60; // Define a Y offset for the spyglass position.
-                // State change: Update spyglass position on mousemove when zoomed in
-                spyglass.style.left = `${e.clientX - offsetX}px`; // Update the left position of the spyglass based on the mouse's X coordinate.
-                spyglass.style.top = `${e.clientY - offsetY}px`; // Update the top position of the spyglass based on the mouse's Y coordinate.
+                /**
+                 * Define an X offset for the spyglass position.
+                 */
+                const offsetX = 60;
+                /**
+                 * Define a Y offset for the spyglass position.
+                 */
+                const offsetY = 60;
+                /**
+                 * Update the left position of the spyglass based on the mouse's X coordinate.
+                 */
+                spyglass.style.left = `${e.clientX - offsetX}px`;
+                /**
+                 * Update the top position of the spyglass based on the mouse's Y coordinate.
+                 */
+                spyglass.style.top = `${e.clientY - offsetY}px`;
             }
         });
 
+        /**
+         * If the map is zoomed in.
+         */
         if (zoomedIn) {
-            // If the map is zoomed in:
-            zoomOrigin = { x, y }; // Set the zoom origin to the coordinates of the double-click.
-            // State change: Zoom in the map and show the spyglass
-            map.style.transformOrigin = `${x}px ${y}px`; // Set the transform origin of the map to the double-click coordinates.
-            map.style.transform = `scale(${zoomFactor})`; // Scale the map by the zoom factor.
-            spyglass.style.opacity = '1'; // Show the spyglass.
-            updateSpyglassPosition(x, y); // Update the position of the spyglass.
+            /**
+             * Set the zoom origin to the coordinates of the double-click.
+             */
+            zoomOrigin = { x, y };
+            /**
+             * Set the transform origin of the map to the double-click coordinates.
+             */
+            map.style.transformOrigin = `${x}px ${y}px`;
+            /**
+             * Scale the map by the zoom factor.
+             */
+            map.style.transform = `scale(${zoomFactor})`;
+            /**
+             * Show the spyglass.
+             */
+            spyglass.style.opacity = '1';
+            /**
+             * Update the position of the spyglass.
+             */
+            updateSpyglassPosition(x, y);
         } else {
-            // If the map is zoomed out:
-            map.style.transformOrigin = `${zoomOrigin.x}px ${zoomOrigin.y}px`; // Reset the transform origin of the map to the original zoom origin.
-            // State change: Zoom out the map and hide the spyglass
-            map.style.transform = `scale(1)`; // Reset the scale of the map to 1 (original size).
+            /**
+             * Reset the transform origin of the map to the original zoom origin.
+             */
+            map.style.transformOrigin = `${zoomOrigin.x}px ${zoomOrigin.y}px`;
+            /**
+             * Reset the scale of the map to 1 (original size).
+             */
+            map.style.transform = `scale(1)`;
 
+            /**
+             * After a short delay.
+             */
             setTimeout(() => {
-                // After a short delay:
+                /**
+                 * Scroll to the initial position.
+                 */
                 wrapper.scrollTo({
                     left: initialScroll.left,
                     top: initialScroll.top,
                     behavior: 'smooth'
                 });
-                spyglass.style.opacity = '0'; // Hide the spyglass.
+                /**
+                 * Hide the spyglass.
+                 */
+                spyglass.style.opacity = '0';
             }, 900);
         }
     });
 
-    // Scroll event to update spyglass position
+    // ============================================================================
+    //  Scroll Event
+    // ============================================================================
+
+    /**
+     * Add scroll event listener to update spyglass position.
+     */
     wrapper.addEventListener('scroll', () => {
-        // This event listener is triggered when the map wrapper is scrolled.
+        /**
+         * If the map is zoomed in.
+         */
         if (zoomedIn) {
-            // If the map is zoomed in:
-            const rect = map.getBoundingClientRect(); // Get the bounding rectangle of the map.
-            const x = zoomOrigin.x + wrapper.scrollLeft - rect.left; // Calculate the X coordinate of the zoom origin relative to the map.
-            const y = zoomOrigin.y + wrapper.scrollTop - rect.top; // Calculate the Y coordinate of the zoom origin relative to the map.
-            updateSpyglassPosition(x, y); // Update the position of the spyglass.
+            /**
+             * Get the bounding rectangle of the map.
+             */
+            const rect = map.getBoundingClientRect();
+            /**
+             * Calculate the X coordinate of the zoom origin relative to the map.
+             */
+            const x = zoomOrigin.x + wrapper.scrollLeft - rect.left;
+            /**
+             * Calculate the Y coordinate of the zoom origin relative to the map.
+             */
+            const y = zoomOrigin.y + wrapper.scrollTop - rect.top;
+            /**
+             * Update the position of the spyglass.
+             */
+            updateSpyglassPosition(x, y);
         }
     });
 
-    // Prevent default gesture and wheel events
-    document.addEventListener('gesturestart', (e) => e.preventDefault()); // Prevent default gesture events.
+    // ============================================================================
+    //  Prevent Default Events
+    // ============================================================================
+
+    /**
+     * Prevent default gesture and wheel events.
+     */
+    document.addEventListener('gesturestart', (e) => e.preventDefault());
+    /**
+     * Add wheel event listener to prevent default behavior when the control key is pressed.
+     */
     document.addEventListener('wheel', (e) => {
-        // This event listener is triggered when the mouse wheel is scrolled.
-        if (e.ctrlKey) e.preventDefault(); // Prevent default wheel events when the control key is pressed.
+        /**
+         * If the control key is pressed.
+         */
+        if (e.ctrlKey) e.preventDefault();
     }, { passive: false });
 
-    // ✅ Dijkstra Button Click
+    // ============================================================================
+    //  Dijkstra Button Click
+    // ============================================================================
+
+    /**
+     * Get the Dijkstra card element.
+     */
     const dijkstraCard = document.getElementById('dijkstra-card');
+    /**
+     * If the Dijkstra card element exists.
+     */
     if (dijkstraCard) {
+        /**
+         * Add click event listener to the Dijkstra card.
+         */
         dijkstraCard.addEventListener('click', () => {
             try {
+                /**
+                 * Play the Dijkstra animation.
+                 */
                 playDijkstraAnimation();
             } catch (e) {
+                /**
+                 * Log any errors to the console.
+                 */
                 console.error("Error playing Dijkstra animation:", e);
             }
         });
