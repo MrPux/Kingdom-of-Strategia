@@ -12,17 +12,19 @@
     <style>
         /* Basic styling for the page */
         body {
-            font-family: sans-serif;
-            background-color: #f4f4f4;
-            padding: 0;
+            min-height: 100vh;
+            /* 🌟 important: at least full height, but can grow */
+            overflow-y: auto;
+            /* 🌟 allow vertical scroll if needed */
             margin: 0;
-            height: 100vh;
+            padding: 0;
+            font-family: sans-serif;
             display: flex;
             flex-direction: row;
             justify-content: flex-start;
             align-items: flex-start;
-            overflow: hidden;
         }
+
 
         /* Style for the village information card on the left */
         .village-card {
@@ -137,6 +139,10 @@
 
     <!-- Right Side Graph + Cards - Contains the graph visualization and algorithm selection cards -->
     <div class="graph-section">
+        <div id="total-cost-display"
+            style="margin-top: 10px; font-size: 20px; font-weight: bold; color: #006400; display: none;">
+            Total Cost: 0
+        </div>
         <!-- Graph Canvas - Where the Cytoscape graph will be rendered -->
         <div id="negative-cycle-graph"></div>
 
@@ -147,10 +153,18 @@
         </div>
         <!-- Notification for Algorithm Info - Displays a warning if Dijkstra's algorithm cannot be used -->
         <div id="algorithm-notice"
-            style="display: none; padding: 15px 20px; margin: 20px auto; background-color: #ffe0e0; border: 1px solid #ff6b6b; border-radius: 10px; color: #a40000; font-weight: bold; width: 80%; text-align: center;">
-            ⚠️ Dijkstra cannot be used due to negative edges. Try Bellman-Ford or Floyd-Warshall instead!
+            style="display: none; padding: 15px 20px; margin: 20px auto; background-color: #058963; border: 1px solid #ff6b6b; border-radius: 10px;  color: white; font-weight: bold; width: 80%; text-align: center;">
+            ⚠️ Unfortunately this village has negative edge weights, thus Dijkstra cannot be used. Try Bellman-Ford or
+            Floyd-Warshall instead!
         </div>
 
+        <!-- Select Algorithm Button -->
+        <div id="select-algorithm-button" style="display: none; margin-top: 20px; text-align: center;">
+            <button
+                style="padding: 15px 20px; font-size: 18px; background-color: #058963; color: white; border: none; border-radius: 10px; cursor: pointer;">
+                Select Algorithm
+            </button>
+        </div>
 
         <!-- Bottom Cards - Algorithm selection cards -->
         <div class="bottom-cards">
@@ -169,10 +183,14 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         // GLOBAL variables here:
+        const villageId = /*[[${village.id}]]*/ 0;
+        let totalCost = 0; // 🛡️ global tracker
+        const totalCostDisplay = document.getElementById('total-cost-display');
         var parsedData = {}; // global
-        var graphData = /*[[${graphData}]]*/ '[]'; // global graph JSON
-        var animationSteps = /*[[${animationSteps}]]*/ '[]'; // global Dijkstra animation JSON
+        var graphData = /*[[${graphData}]]*/ '[]'; // global graph JSON 
         var cy; // global Cytoscape instance
+        let isAnimating = false;
+
 
         // Event listener that triggers when the document is fully loaded
         document.addEventListener('DOMContentLoaded', function () {
@@ -287,11 +305,52 @@
                 console.error("Error initializing Cytoscape:", e);
                 document.getElementById('negative-cycle-graph').innerText = "Error: Could not render graph.";
             }
+
+            // Then ADD this here (inside DOMContentLoaded)
+            const dijkstraCard = document.getElementById('dijkstra-card');
+            const bellmanFordCard = document.getElementById('Bellman-Ford-card');
+            const floydWarshallCard = document.getElementById('Floyd-Warshall-card');
+
+            dijkstraCard.addEventListener('click', async () => {
+                if (!hasNegativeEdge) {
+                    hideSelectAlgorithmButton();
+                    const response = await fetch(`/village/${villageId}/dijkstra`);
+                    const steps = await response.json();
+
+                    animationSteps = steps; // ⬅️🌟 SET IT GLOBALLY like others
+
+                    playDijkstraAnimation(animationSteps);
+                    console.log("✅ Dijkstra animation triggered (no negative edges).");
+                } else {
+                    console.log("❌ Negative edges detected: showing notice!");
+                }
+            });
+
+
+            bellmanFordCard.addEventListener('click', async () => {
+                hideSelectAlgorithmButton();
+                const response = await fetch(`/village/${villageId}/bellmanford`);
+                const steps = await response.json();
+                playBellmanFordAnimation(steps);
+                console.log("🛡️ Bellman-Ford animation triggered from server!");
+            });
+
+            floydWarshallCard.addEventListener('click', async () => {
+                hideSelectAlgorithmButton();
+                const response = await fetch(`/village/${villageId}/floydwarshall`);
+                const steps = await response.json();
+                playFloydWarshallAnimation(steps);
+                console.log("🌌 Floyd-Warshall animation triggered from server!");
+            });
         });
 
         // ✅ Dijkstra Animation Function - Animates Dijkstra's algorithm on the graph
-        async function playDijkstraAnimation() {
-            const steps = JSON.parse(animationSteps);
+        async function playDijkstraAnimation(steps) {
+            if (isAnimating) return;  // ⛔ already playing, ignore click
+            isAnimating = true;
+            totalCost = 0;
+            totalCostDisplay.innerText = "Total Cost: 0"; // <-- Add this
+            totalCostDisplay.style.display = "none"; // hide while playing 
             const finalizedEdges = new Set(); // 🟢 to track final green connections
 
             for (const step of steps) {
@@ -304,6 +363,7 @@
                     edge.forEach(e => {
                         e.style({
                             'line-color': 'orange',
+                            'target-arrow-shape': 'triangle',
                             'target-arrow-color': 'orange',
                             'line-style': 'solid',
                             'width': 4,
@@ -322,6 +382,7 @@
                     edge.forEach(e => {
                         e.style({
                             'line-color': 'green',
+                            'target-arrow-shape': 'triangle',
                             'target-arrow-color': 'green',
                             'line-style': 'solid',
                             'width': 5,
@@ -337,10 +398,19 @@
                         });
 
                         finalizedEdges.add(e.id()); // 🟢 Mark this edge as finalized
+
+                        // 🧠 Increase cost
+                        // Get actual weight from the graph
+                        let actualWeight = e.data('weight');
+                        totalCost += actualWeight;
+
                     });
                 }
 
-                await new Promise(resolve => setTimeout(resolve, 500)); // small delay between steps
+                await new Promise(resolve => setTimeout(resolve, 50)); // small delay between steps
+                totalCostDisplay.innerText = "Total Cost: " + totalCost;
+                totalCostDisplay.style.display = "block"; // ✨ reveal after finish
+
             }
 
             // ✨ After ALL animations, hide the remaining orange edges
@@ -354,12 +424,20 @@
                     });
                 }
             });
+            isAnimating = false;
+            document.getElementById('select-algorithm-button').style.display = 'block';
         }
 
         // ✅ BeellmanFord Animation Function - Animates BellmanFord's algorithm on the graph
-        async function playBellmanFordAnimation() {
-            const finalizedEdges = new Set(); // track which edges were finalized
+        async function playBellmanFordAnimation(steps) {
+            if (isAnimating) return;  // ⛔ already playing, ignore click
+            isAnimating = true;
+            totalCost = 0;
+            const finalizedEdges = new Set();
             const finalizeNotice = document.getElementById('finalize-notice');
+
+            const visitSteps = steps.filter(step => step.action === "visit");
+            const finalizeSteps = steps.filter(step => step.action === "finalize");
 
             // Phase 1: VISIT phase (blue)
             for (const step of visitSteps) {
@@ -386,10 +464,9 @@
                     });
                 });
 
-                await new Promise(resolve => setTimeout(resolve, 8));  // small delay for each visit
+                await new Promise(resolve => setTimeout(resolve, 8));
             }
 
-            // ✅ AFTER ALL BLUE IS DONE, NOW SHOW "HANG TIGHT!"
             finalizeNotice.style.display = "block";
             finalizeNotice.style.opacity = 0;
             setTimeout(() => {
@@ -397,15 +474,16 @@
                 finalizeNotice.style.opacity = 1;
             }, 10);
 
-
             // Phase 2: FINALIZE phase (green)
+            const finalizedPairs = new Set();
+
             for (const step of finalizeSteps) {
-                const edge = cy.edges().filter(edge =>
-                    (edge.source().id() === step.from && edge.target().id() === step.to) ||
-                    (edge.source().id() === step.to && edge.target().id() === step.from)
+                const edges = cy.edges().filter(e =>
+                    (e.source().id() === step.from && e.target().id() === step.to) ||
+                    (e.source().id() === step.to && e.target().id() === step.from)
                 );
 
-                edge.forEach(e => {
+                edges.forEach(e => {
                     e.style({
                         'line-color': 'green',
                         'target-arrow-color': 'green',
@@ -421,13 +499,17 @@
                         'border-width': '4px',
                         'border-color': 'green'
                     });
+
                     finalizedEdges.add(e.id());
+                    addEdgeCostOnce(step, e, finalizedPairs);
                 });
-                await new Promise(resolve => setTimeout(resolve, 50));  // small delay for each visit
+
+                await new Promise(resolve => setTimeout(resolve, 50));
+                totalCostDisplay.innerText = "Total Cost: " + totalCost;
+                totalCostDisplay.style.display = "block";
             }
 
-
-            // ✨ Hide leftover blue edges (those that were only visited, not finalized)
+            // Fade unfinished edges
             cy.edges().forEach(edge => {
                 if (!finalizedEdges.has(edge.id())) {
                     edge.style({
@@ -438,7 +520,6 @@
                 }
             });
 
-            // Hide "calculation complete!" message after finishing
             setTimeout(() => {
                 finalizeNotice.style.transition = "opacity 0.5s ease-out";
                 finalizeNotice.style.opacity = 0;
@@ -446,65 +527,168 @@
                     finalizeNotice.style.display = "none";
                 }, 500);
             }, 1000);
+
+            isAnimating = false;
+            document.getElementById('select-algorithm-button').style.display = 'block';
         }
 
 
+        async function playFloydWarshallAnimation(steps) {
+            if (isAnimating) return;
+            isAnimating = true;
+            totalCost = 0;
+            const finalizedEdges = new Set();
+            const finalizeNotice = document.getElementById('finalize-notice');
 
+            const visitSteps = steps.filter(step => step.action === "visit");
+            const finalizeSteps = steps.filter(step => step.action === "finalize");
 
+            // Phase 1: VISIT phase (orange)
+            for (const step of visitSteps) {
+                const edge = cy.edges().filter(edge =>
+                    (edge.source().id() === step.from && edge.target().id() === step.to) ||
+                    (edge.source().id() === step.to && edge.target().id() === step.from)
+                );
 
+                edge.forEach(e => {
+                    e.style({
+                        'line-color': 'orange',
+                        'target-arrow-color': 'orange',
+                        'line-style': 'solid',
+                        'width': 4,
+                        'line-dash-pattern': []
+                    });
+                    cy.$id(step.from).style({
+                        'border-width': '4px',
+                        'border-color': 'orange'
+                    });
+                    cy.$id(step.to).style({
+                        'border-width': '4px',
+                        'border-color': 'orange'
+                    });
+                });
+
+                await new Promise(resolve => setTimeout(resolve, 8));
+            }
+
+            finalizeNotice.style.display = "block";
+            finalizeNotice.style.opacity = 0;
+            setTimeout(() => {
+                finalizeNotice.style.transition = "opacity 0.5s ease-in";
+                finalizeNotice.style.opacity = 1;
+            }, 10);
+
+            // Phase 2: FINALIZE phase (green)
+            const finalizedPairs = new Set();
+
+            for (const step of finalizeSteps) {
+                const edges = cy.edges().filter(edge =>
+                    (edge.source().id() === step.from && edge.target().id() === step.to) ||
+                    (edge.source().id() === step.to && edge.target().id() === step.from)
+                );
+
+                edges.forEach(e => {
+                    e.style({
+                        'line-color': 'green',
+                        'target-arrow-color': 'green',
+                        'line-style': 'solid',
+                        'width': 5,
+                        'line-dash-pattern': []
+                    });
+
+                    cy.$id(step.from).style({
+                        'border-width': '4px',
+                        'border-color': 'green'
+                    });
+                    cy.$id(step.to).style({
+                        'border-width': '4px',
+                        'border-color': 'green'
+                    });
+
+                    finalizedEdges.add(e.id());
+                    addEdgeCostOnce(step, e, finalizedPairs);
+                });
+
+                await new Promise(resolve => setTimeout(resolve, 50));
+                totalCostDisplay.innerText = "Total Cost: " + totalCost;
+                totalCostDisplay.style.display = "block";
+            }
+
+            cy.edges().forEach(edge => {
+                if (!finalizedEdges.has(edge.id())) {
+                    edge.style({
+                        'opacity': 0.2,
+                        'line-color': '#ccc',
+                        'target-arrow-color': '#ccc'
+                    });
+                }
+            });
+
+            setTimeout(() => {
+                finalizeNotice.style.transition = "opacity 0.5s ease-out";
+                finalizeNotice.style.opacity = 0;
+                setTimeout(() => {
+                    finalizeNotice.style.display = "none";
+                }, 500);
+            }, 700);
+
+            isAnimating = false;
+            document.getElementById('select-algorithm-button').style.display = 'block';
+        }
 
         var hasNegativeEdge = /*[[${hasNegativeEdge}]]*/ false; // only declare ONCE
 
-        const dijkstraCard = document.getElementById('dijkstra-card');
-        const bellmanFordCard = document.getElementById('Bellman-Ford-card');
-        const notice = document.getElementById('algorithm-notice');
-        const bottomCards = document.querySelector('.bottom-cards'); // <-- get the cards container
 
-        // Parse BellmanFord animation steps
-        var bellmanFordAnimationSteps = /*[[${bellmanFordSteps}]]*/ '[]';
-        bellmanFordAnimationSteps = JSON.parse(bellmanFordAnimationSteps);
-        const visitSteps = bellmanFordAnimationSteps.filter(step => step.action === "visit");
-        const finalizeSteps = bellmanFordAnimationSteps.filter(step => step.action === "finalize");
-
-
-        // ✅ Dijkstra Button Click - Handles the click event for the Dijkstra card
-        dijkstraCard.addEventListener('click', () => {
-            if (!hasNegativeEdge) {
-                playDijkstraAnimation();
-                console.log("✅ Dijkstra animation triggered (no negative edges).");
-            } else {
-                console.log("❌ Negative edges detected: showing notice!");
-
-                // ⬇️ Hide bottom cards
-                bottomCards.style.display = "none";
-
-                // ⬇️ Show notification
-                notice.style.opacity = 0;
-                notice.style.display = "block";
-                setTimeout(() => {
-                    notice.style.transition = "opacity 0.5s ease-in";
-                    notice.style.opacity = 1;
-                }, 10);
-
-                // ⬇️ After 3 seconds, fade out notification
-                setTimeout(() => {
-                    notice.style.transition = "opacity 1s ease-out";
-                    notice.opacity = 0;
-
-                    // After fading out, hide the notice and bring back cards
-                    setTimeout(() => {
-                        notice.style.display = "none";
-                        bottomCards.style.display = "flex"; // 👈 bring back cards
-                    }, 1000); // wait for fade out to finish
-                }, 3000); // wait 3 seconds before starting fade
+        function addEdgeCostOnce(step, edge, finalizedPairs) {
+            const key1 = step.from + "-" + step.to;
+            const key2 = step.to + "-" + step.from;
+            if (!finalizedPairs.has(key1) && !finalizedPairs.has(key2)) {
+                let weight = edge.data('weight') || 0;
+                totalCost += weight;
+                finalizedPairs.add(key1);
+                finalizedPairs.add(key2);
             }
-        });
+        }
 
-        // ✅ BellmanFord Button Click - Handles the click event for the BellmanFord card
-        bellmanFordCard.addEventListener('click', () => {
-            playBellmanFordAnimation();
-            console.log("🛡️ Bellman-Ford animation triggered!");
-        });
+        function hideSelectAlgorithmButton() {
+            const selectButtonDiv = document.getElementById('select-algorithm-button');
+            if (selectButtonDiv.style.display !== "none") {
+                selectButtonDiv.style.transition = "opacity 0.5s ease-out, margin 0.5s ease-out, height 0.5s ease-out";
+                selectButtonDiv.style.opacity = 0;
+                selectButtonDiv.style.marginTop = "0px"; // 👈 shrink the margin
+                selectButtonDiv.style.height = "0px";    // 👈 shrink the height
+
+                setTimeout(() => {
+                    selectButtonDiv.style.display = "none";
+                }, 500); // wait for fade & shrink to finish
+            }
+        }
+        function hideSelectAlgorithmButton() {
+            const selectButtonDiv = document.getElementById('select-algorithm-button');
+            if (selectButtonDiv.style.display !== "none") {
+                selectButtonDiv.style.transition = "opacity 0.5s ease-out, margin 0.5s ease-out, height 0.5s ease-out";
+                selectButtonDiv.style.opacity = 0;
+                selectButtonDiv.style.marginTop = "0px"; // 👈 shrink the margin
+                selectButtonDiv.style.height = "0px";    // 👈 shrink the height
+
+                setTimeout(() => {
+                    selectButtonDiv.style.display = "none";
+                }, 500); // wait for fade & shrink to finish
+            }
+        }
+        function hideSelectAlgorithmButton() {
+            const selectButtonDiv = document.getElementById('select-algorithm-button');
+            if (selectButtonDiv.style.display !== "none") {
+                selectButtonDiv.style.transition = "opacity 0.5s ease-out, margin 0.5s ease-out, height 0.5s ease-out";
+                selectButtonDiv.style.opacity = 0;
+                selectButtonDiv.style.marginTop = "0px"; // 👈 shrink the margin
+                selectButtonDiv.style.height = "0px";    // 👈 shrink the height
+
+                setTimeout(() => {
+                    selectButtonDiv.style.display = "none";
+                }, 500); // wait for fade & shrink to finish
+            }
+        }
 
 
         /*]]>*/

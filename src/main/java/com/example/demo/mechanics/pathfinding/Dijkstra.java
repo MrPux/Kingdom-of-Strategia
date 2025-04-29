@@ -23,6 +23,7 @@ public class Dijkstra {
         private String action; // "visit" or "finalize"
         private String from;
         private String to;
+        private int weight;
 
         /**
          * Constructs an AnimationStep object.
@@ -30,10 +31,11 @@ public class Dijkstra {
          * @param from The ID of the starting node.
          * @param to The ID of the destination node.
          */
-        public AnimationStep(String action, String from, String to) {
+        public AnimationStep(String action, String from, String to, int weight) {
             this.action = action;
             this.from = from;
             this.to = to;
+            this.weight = weight;
         }
 
         /**
@@ -127,7 +129,7 @@ public class Dijkstra {
                 // If the neighbor node has already been visited, skip to the next edge.
                 if (visited.contains(neighbor)) continue;
                 // Add an animation step to indicate that the algorithm is visiting the neighbor node.
-                animationSteps.add(new AnimationStep("visit", current, neighbor));
+                animationSteps.add(new AnimationStep("visit", current, neighbor, weight));
 
                 // Calculate the new distance from the start node to the neighbor node.
                 int newDistance = distances.get(current) + weight;
@@ -142,14 +144,25 @@ public class Dijkstra {
         // After all nodes visited, highlight shortest paths
         // This loop iterates over the 'previous' map, which contains the previous node in the shortest path from the start node to each node.
         for (Map.Entry<String, String> entry : previous.entrySet()) {
-            // Check if both the current node and the previous node have been visited.
-            if (visited.contains(entry.getKey()) && visited.contains(entry.getValue())) { // ✅ Only if reachable
-                // If both nodes have been visited, add an animation step to indicate that the shortest path between them is being finalized.
-                animationSteps.add(new AnimationStep("finalize", entry.getValue(), entry.getKey()));
+            if (visited.contains(entry.getKey()) && visited.contains(entry.getValue())) {
+                int from = Integer.parseInt(entry.getValue());
+                int to = Integer.parseInt(entry.getKey());
+                int weight = findEdgeWeight(edges, from, to);
+        
+                animationSteps.add(new AnimationStep("finalize", entry.getValue(), entry.getKey(), weight));
             }
         }
 
-
         return animationSteps;
     }
+    private static int findEdgeWeight(List<StructureRoad> edges, int from, int to) {
+        for (StructureRoad edge : edges) {
+            if ((edge.getFromStructure().getId() == from && edge.getToStructure().getId() == to) ||
+                (edge.getFromStructure().getId() == to && edge.getToStructure().getId() == from)) {
+                return edge.getWeight();
+            }
+        }
+        return 0; // default, should not happen
+    }
+    
 }

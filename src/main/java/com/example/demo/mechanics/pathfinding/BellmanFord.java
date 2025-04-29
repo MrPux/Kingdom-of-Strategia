@@ -84,11 +84,13 @@ public class BellmanFord {
         private String action; // "relax" or "finalize"
         private String from;
         private String to;
+        private int weight;
 
-        public AnimationStep(String action, String from, String to) {
+        public AnimationStep(String action, String from, String to, int weight) {
             this.action = action;
             this.from = from;
             this.to = to;
+            this.weight = weight;
         }
 
         public String getAction() {
@@ -140,22 +142,34 @@ public class BellmanFord {
                     previous[v] = String.valueOf(u);
 
                     // 👇 Animation step showing "visit" (updating path)Y
-                    animationSteps.add(new AnimationStep("visit", String.valueOf(u), String.valueOf(v)));
+                    animationSteps.add(new AnimationStep("visit", String.valueOf(u), String.valueOf(v), weight));
 
                 }
             }
         }
 
         // Step 3: Finalize the shortest paths
-        for(int v = 0; v < nodeCount; v++)
-        {
-            if(previous[v] != null)
-            {   
-                animationSteps.add(new AnimationStep("finalize", previous[v], String.valueOf(v)));
+         for (int v = 0; v < nodeCount; v++) {
+            if (previous[v] != null) {
+                int from = Integer.parseInt(previous[v]);
+                int to = v;
+                int weight = findEdgeWeight(edges, from, to);
+
+                animationSteps.add(new AnimationStep("finalize", String.valueOf(from), String.valueOf(to), weight));
             }
         }
-    
+        
         return animationSteps; // temporary, so no red error yet
+    }
+    
+    private static int findEdgeWeight(List<StructureRoad> edges, int from, int to) {
+        for (StructureRoad edge : edges) {
+            if ((edge.getFromStructure().getId() == from && edge.getToStructure().getId() == to) ||
+                (edge.getFromStructure().getId() == to && edge.getToStructure().getId() == from)) {
+                return edge.getWeight();
+            }
+        }
+        return 0; // if somehow not found (should not happen normally)
     }
     
 }

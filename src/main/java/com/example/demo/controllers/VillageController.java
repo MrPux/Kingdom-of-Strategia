@@ -7,13 +7,17 @@ import com.example.demo.classes.villageClasses.Village;
 import com.example.demo.mechanics.generation.GameMap;
 import com.example.demo.mechanics.pathfinding.BellmanFord;
 import com.example.demo.mechanics.pathfinding.Dijkstra;
+import com.example.demo.mechanics.pathfinding.FloydWarshall;
 import com.example.demo.utils.SpriteLoader;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.*;
 
@@ -144,12 +148,7 @@ public class VillageController {
             ObjectMapper mapper = new ObjectMapper();
             String animationStepsJson = mapper.writeValueAsString(steps);
             model.addAttribute("animationSteps", animationStepsJson);
-
-
-            // 🛡️ BellmanFord animation
-            List<BellmanFord.AnimationStep> bellmanFordSteps = BellmanFord.generateBellmanFordAnimation(village.getStructuresList(), structureEdges, startId);
-            String bellmanFordAnimationStepsJson = mapper.writeValueAsString(bellmanFordSteps);
-            model.addAttribute("bellmanFordSteps", bellmanFordAnimationStepsJson);
+  
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -287,4 +286,94 @@ public class VillageController {
         isConnected.put(from.getId(), true);
         isConnected.put(to.getId(), true);
     }
+
+    private String findValidStartNode(List<StructureNode> nodes) {
+        for (StructureNode node : nodes) {
+            if (!node.getSprite().contains("Fountain")) {
+                return String.valueOf(node.getId());
+            }
+        }
+        return "0"; // fallback
+    }    
+
+    @GetMapping("/village/{id}/dijkstra")
+    public ResponseEntity<List<Dijkstra.AnimationStep>> getDijkstraSteps(@PathVariable int id) {
+        Village village = map.getVillages().stream()
+                .filter(v -> v.getId() == id)
+                .findFirst()
+                .orElse(null);
+    
+        if (village == null) {
+            return ResponseEntity.notFound().build();
+        }
+    
+        List<StructureNode> nodes = village.getStructuresList();
+        
+        // 🔥 Correct way: collect edges from nodes, not from village
+        List<StructureRoad> structureEdges = new ArrayList<>();
+        for (StructureNode node : nodes) {
+            structureEdges.addAll(node.getConnections());
+        }
+    
+        String startId = findValidStartNode(nodes);
+        List<Dijkstra.AnimationStep> steps = Dijkstra.generateDijkstraAnimation(nodes, structureEdges, startId);
+    
+        return ResponseEntity.ok(steps);
+    }
+    
+    
+
+    // 🛡️ BellmanFord animation
+    @GetMapping("/village/{id}/bellmanford")
+    public ResponseEntity<List<BellmanFord.AnimationStep>> getBellmanFordAnimation(@PathVariable int id) {
+        Village village = map.getVillages().stream()
+                .filter(v -> v.getId() == id)
+                .findFirst()
+                .orElse(null);
+
+        if (village == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<StructureRoad> structureEdges = new ArrayList<>();
+        for (StructureNode node : village.getStructuresList()) {
+            structureEdges.addAll(node.getConnections());
+        }
+
+        String startId = "0"; // or your way of finding starting node
+        List<BellmanFord.AnimationStep> steps = BellmanFord.generateBellmanFordAnimation(
+                village.getStructuresList(),
+                structureEdges,
+                startId
+        );
+
+        return ResponseEntity.ok(steps);
+    }
+
+    // 🧠 Floyd-Warshall animation
+    @GetMapping("/village/{id}/floydwarshall")
+    public ResponseEntity<List<FloydWarshall.AnimationStep>> getFloydWarshallAnimation(@PathVariable int id) {
+        Village village = map.getVillages().stream()
+                .filter(v -> v.getId() == id)
+                .findFirst()
+                .orElse(null);
+
+        if (village == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<StructureRoad> structureEdges = new ArrayList<>();
+        for (StructureNode node : village.getStructuresList()) {
+            structureEdges.addAll(node.getConnections());
+        }
+
+        List<FloydWarshall.AnimationStep> steps = FloydWarshall.generateFloydWarshallAnimation(
+                village.getStructuresList(),
+                structureEdges
+        );
+
+        return ResponseEntity.ok(steps);
+    }
+
+
 }
