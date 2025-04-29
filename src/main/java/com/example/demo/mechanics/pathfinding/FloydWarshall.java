@@ -49,6 +49,12 @@ public class FloydWarshall {
         int[][] dist = new int[n][n];
         int[][] next = new int[n][n];
 
+        // Create a mapping between node IDs and indices
+        Map<Integer, Integer> nodeIdToIndex = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            nodeIdToIndex.put(nodes.get(i).getId(), i);
+        }
+
         // Initialize distance and next matrices
         for (int i = 0; i < n; i++) {
             Arrays.fill(dist[i], Integer.MAX_VALUE);
@@ -57,8 +63,8 @@ public class FloydWarshall {
         }
 
         for (StructureRoad edge : edges) {
-            int u = edge.getFromStructure().getId();
-            int v = edge.getToStructure().getId();
+            int u = nodeIdToIndex.get(edge.getFromStructure().getId());
+            int v = nodeIdToIndex.get(edge.getToStructure().getId());
             dist[u][v] = edge.getWeight();
             next[u][v] = v;
 
@@ -77,7 +83,7 @@ public class FloydWarshall {
                             && dist[i][k] + dist[k][j] < dist[i][j]) {
                         dist[i][j] = dist[i][k] + dist[k][j];
                         next[i][j] = next[i][k];
-                        animationSteps.add(new AnimationStep("visit", String.valueOf(i), String.valueOf(j), dist[i][j]));
+                        animationSteps.add(new AnimationStep("visit", String.valueOf(nodes.get(i).getId()), String.valueOf(nodes.get(j).getId()), dist[i][j]));
                     }
                 }
             }
@@ -98,7 +104,7 @@ public class FloydWarshall {
                         String key2 = v + "-" + u;
 
                         if (!finalizedPairs.contains(key1) && !finalizedPairs.contains(key2)) {
-                            animationSteps.add(new AnimationStep("finalize", String.valueOf(u), String.valueOf(v), dist[u][v]));
+                            animationSteps.add(new AnimationStep("finalize", String.valueOf(nodes.get(u).getId()), String.valueOf(nodes.get(v).getId()), dist[u][v]));
                             finalizedPairs.add(key1);
                             finalizedPairs.add(key2);
                         }
@@ -107,6 +113,27 @@ public class FloydWarshall {
                     }
                 }
             }
+        }
+
+        // Check if the graph is fully connected
+        boolean isFullyConnected = true;
+        for (int i = 0; i < n; i++) {
+            boolean hasConnection = false;
+            for (int j = 0; j < n; j++) {
+                if (i != j && dist[i][j] != Integer.MAX_VALUE) {
+                    hasConnection = true;
+                    break;
+                }
+            }
+            if (!hasConnection) {
+                isFullyConnected = false;
+                break;
+            }
+        }
+
+        if (!isFullyConnected) {
+            System.out.println("Graph is not fully connected, skipping Floyd-Warshall animation.");
+            return Collections.emptyList();
         }
 
         return animationSteps;

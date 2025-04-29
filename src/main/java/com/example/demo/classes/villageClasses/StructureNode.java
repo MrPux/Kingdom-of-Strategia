@@ -83,7 +83,7 @@ public class StructureNode {
      *
      * @return The x-coordinate of the structure node.
      */
-    public int getXCoordinate() {
+    public int getX() {
         return xCoordinate;
     }
 
@@ -101,7 +101,7 @@ public class StructureNode {
      *
      * @return The y-coordinate of the structure node.
      */
-    public int getYCoordinate() {
+    public int getY() {
         return yCoordinate;
     }
 
@@ -148,5 +148,12 @@ public class StructureNode {
      */
     public void setConnections(List<StructureRoad> connections) {
         this.connections = connections;
+    }
+
+    /**
+     * Clears all connections from this structure node.
+     */
+    public void clearConnections() {
+        this.connections.clear();
     }
 }

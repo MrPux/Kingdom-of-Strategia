@@ -3,11 +3,7 @@ package com.example.demo.mechanics.pathfinding;
 import com.example.demo.classes.villageClasses.StructureNode;
 import com.example.demo.classes.villageClasses.StructureRoad;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <h1>BellmanFord</h1>
@@ -108,6 +104,21 @@ public class BellmanFord {
 
 
 
+    private static int findEdgeWeight(List<StructureRoad> edges, int from, int to) {
+        for (StructureRoad edge : edges) {
+            if ((edge.getFromStructure().getId() == from && edge.getToStructure().getId() == to) ||
+                (edge.getFromStructure().getId() == to && edge.getToStructure().getId() == from)) {
+                return edge.getWeight();
+            }
+        }
+        return 0; // if somehow not found (should not happen normally)
+    }
+
+    private static Set<StructureNode> getConnectedComponent(List<StructureNode> graph, StructureNode startNode) {
+        Set<StructureNode> connectedComponent = new HashSet<>(graph);
+        return connectedComponent;
+    }
+
     /** Runs Bellman-Ford and generates animation steps.
      *
      * @param nodes List of structure nodes
@@ -120,6 +131,24 @@ public class BellmanFord {
         int[] distances = new int[nodeCount];
         String[] previous = new String[nodeCount];
         List<AnimationStep> animationSteps = new ArrayList<>();
+
+        // Get the starting node
+        StructureNode startNode = null;
+        for (StructureNode node : nodes) {
+            if (String.valueOf(node.getId()).equals(startId)) {
+                startNode = node;
+                break;
+            }
+        }
+
+        // If the start node is null, return an empty list of animation steps
+        if (startNode == null) {
+            System.out.println("⚠️ Start node not found for Bellman-Ford!");
+            return animationSteps;
+        }
+
+        // Get the connected component containing the starting node
+        Set<StructureNode> connectedComponent = getConnectedComponent(nodes, startNode);
     
         // Step 1.1: Initialize all distances to "infinite"
         Arrays.fill(distances, Integer.MAX_VALUE);
@@ -136,14 +165,17 @@ public class BellmanFord {
                 int v = edge.getToStructure().getId();
                 int weight = edge.getWeight();
 
-                if(distances[u] != Integer.MAX_VALUE && distances[u] + weight < distances[v])
-                {
-                    distances[v] = distances[u] + weight;
-                    previous[v] = String.valueOf(u);
+                // Only relax edges within the connected component
+                if (connectedComponent.contains(edge.getFromStructure()) && connectedComponent.contains(edge.getToStructure())) {
+                    if(distances[u] != Integer.MAX_VALUE && distances[u] + weight < distances[v])
+                    {
+                        distances[v] = distances[u] + weight;
+                        previous[v] = String.valueOf(u);
 
-                    // 👇 Animation step showing "visit" (updating path)Y
-                    animationSteps.add(new AnimationStep("visit", String.valueOf(u), String.valueOf(v), weight));
+                        // 👇 Animation step showing "visit" (updating path)Y
+                        animationSteps.add(new AnimationStep("visit", String.valueOf(u), String.valueOf(v), weight));
 
+                    }
                 }
             }
         }
@@ -160,16 +192,6 @@ public class BellmanFord {
         }
         
         return animationSteps; // temporary, so no red error yet
-    }
-    
-    private static int findEdgeWeight(List<StructureRoad> edges, int from, int to) {
-        for (StructureRoad edge : edges) {
-            if ((edge.getFromStructure().getId() == from && edge.getToStructure().getId() == to) ||
-                (edge.getFromStructure().getId() == to && edge.getToStructure().getId() == from)) {
-                return edge.getWeight();
-            }
-        }
-        return 0; // if somehow not found (should not happen normally)
     }
     
 }

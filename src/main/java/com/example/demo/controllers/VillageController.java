@@ -17,7 +17,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.*;
 
@@ -146,6 +145,7 @@ public class VillageController {
 
             // Convert animation steps to JSON format.
             ObjectMapper mapper = new ObjectMapper();
+            System.out.println("Number of animation steps: " + steps.size());
             String animationStepsJson = mapper.writeValueAsString(steps);
             model.addAttribute("animationSteps", animationStepsJson);
   
@@ -181,6 +181,47 @@ public class VillageController {
         List<Object> edges = new ArrayList<>();
 
         List<StructureNode> structureNodes = village.getStructuresList();
+
+        // --- Ensure full connectivity using MST-like logic ---
+        Set<Integer> connected = new HashSet<>();
+        List<StructureRoad> newStructureEdges = new ArrayList<>();
+        if (!structureNodes.isEmpty()) {
+            connected.add(structureNodes.get(0).getId()); // Start from the first node
+
+            while (connected.size() < structureNodes.size()) {
+                double minDistance = Double.MAX_VALUE;
+                StructureNode bestFrom = null;
+                StructureNode bestTo = null;
+
+                for (StructureNode from : structureNodes) {
+                    if (!connected.contains(from.getId())) continue;
+                    for (StructureNode to : structureNodes) {
+                        if (connected.contains(to.getId())) continue;
+
+                        double dx = Math.abs(from.getX() - to.getX());
+                        double dy = Math.abs(from.getY() - to.getY());
+                        double distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            bestFrom = from;
+                            bestTo = to;
+                        }
+                    }
+                }
+
+                if (bestFrom != null && bestTo != null) {
+                    StructureRoad road = new StructureRoad(bestFrom, bestTo, 1);
+                    bestFrom.getConnections().add(road);
+                    bestTo.getConnections().add(road);
+                    newStructureEdges.add(road);
+                    connected.add(bestTo.getId());
+                } else {
+                    break; // Safety
+                }
+            }
+        }
+
 
         // Track connected node IDs
         Map<Integer, Boolean> isConnected = new HashMap<>();
@@ -253,7 +294,11 @@ public class VillageController {
         graphData.put("nodes", nodes);
         graphData.put("edges", edges);
 
-        return objectMapper.writeValueAsString(graphData);
+        String graphDataJson = objectMapper.writeValueAsString(graphData);
+        System.out.println("Generated graph data:");
+        System.out.println("Nodes: " + nodes);
+        System.out.println("Edges: " + edges);
+        return graphDataJson;
     }
 
     /**
@@ -352,26 +397,72 @@ public class VillageController {
 
     // 🧠 Floyd-Warshall animation
     @GetMapping("/village/{id}/floydwarshall")
-    public ResponseEntity<List<FloydWarshall.AnimationStep>> getFloydWarshallAnimation(@PathVariable int id) {
+    public ResponseEntity<List<FloydWarshall.AnimationStep>> getFloydWarshallAnimation(@PathVariable int id, Model model) {
         Village village = map.getVillages().stream()
                 .filter(v -> v.getId() == id)
                 .findFirst()
                 .orElse(null);
-
+    
         if (village == null) {
             return ResponseEntity.notFound().build();
         }
-
+    
+        System.out.println("Floyd-Warshall animation requested for village ID: " + id);
+    
         List<StructureRoad> structureEdges = new ArrayList<>();
+        // Clear the structureEdges list to ensure it's updated for the new village
+        structureEdges.clear();
         for (StructureNode node : village.getStructuresList()) {
             structureEdges.addAll(node.getConnections());
         }
-
-        List<FloydWarshall.AnimationStep> steps = FloydWarshall.generateFloydWarshallAnimation(
-                village.getStructuresList(),
-                structureEdges
-        );
-
+    
+        System.out.println("Number of edges for Floyd-Warshall: " + structureEdges.size());
+    
+        boolean hasNegativeEdge = false;
+        for (StructureRoad edge : structureEdges) {
+            if (edge.getWeight() < 0) {
+                hasNegativeEdge = true;
+                break;
+            }
+        }
+    
+        List<FloydWarshall.AnimationStep> steps = null;
+        boolean hasNegativeCycle = false;
+        if (hasNegativeEdge) {
+            if (village.hasNegativeCycle()) {
+                System.out.println("Village has a negative cycle, skipping Floyd-Warshall animation.");
+                hasNegativeCycle = true;
+                steps = Collections.emptyList();
+            } else {
+                hasNegativeCycle = false;
+                try {
+                    steps = FloydWarshall.generateFloydWarshallAnimation(
+                            village.getStructuresList(),
+                            structureEdges
+                    );
+                    System.out.println("Floyd-Warshall generated " + steps.size() + " animation steps.");
+                } catch (Exception e) {
+                    System.err.println("Error generating Floyd-Warshall animation: " + e.getMessage());
+                    e.printStackTrace();
+                    return ResponseEntity.internalServerError().build();
+                }
+            }
+        } else {
+            hasNegativeCycle = false;
+            try {
+                steps = FloydWarshall.generateFloydWarshallAnimation(
+                        village.getStructuresList(),
+                        structureEdges
+                );
+                System.out.println("Floyd-Warshall generated " + steps.size() + " animation steps.");
+            } catch (Exception e) {
+                System.err.println("Error generating Floyd-Warshall animation: " + e.getMessage());
+                e.printStackTrace();
+                return ResponseEntity.internalServerError().build();
+            }
+        }
+    
+        model.addAttribute("floydWarshallNotice", hasNegativeEdge || hasNegativeCycle);
         return ResponseEntity.ok(steps);
     }
 
