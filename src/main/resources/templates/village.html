@@ -5,9 +5,9 @@
 <head>
     <!-- ========================= Metadata for the HTML document ========================= -->
     <meta charset="UTF-8">
-    /* Sets the title of the page dynamically using Thymeleaf */
+    <!-- ========================= Sets the title of the page dynamically using Thymeleaf ========================= -->
     <title th:text="'Village of ' + ${village.name}">Village Info</title>
-    /* Cytoscape.js library for graph visualization */
+    <!-- ========================= Cytoscape.js library for graph visualization ========================= -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.21.0/cytoscape.min.js"
         crossorigin="anonymous"></script>
 
@@ -17,7 +17,7 @@
             min-height: 100vh;
             /* 🌟 important: at least full height, but can grow */
             overflow-y: auto;
-            /* allow vertical scroll if needed */
+            /* 🌟 allow vertical scroll if needed */
             margin: 0;
             padding: 0;
             font-family: sans-serif;
@@ -207,36 +207,37 @@
         const selectAlgorithmBtn = document.getElementById('select-algorithm');
         const scoutMessangerBtn = document.getElementById('scout-messanger');
         const villageId = /*[[${village.id}]]*/ 0;
-        let totalCost = 0; // 🛡️ Tracker for total path cost
+        let totalCost = 0; // 🛡️ global tracker
         const totalCostDisplay = document.getElementById('total-cost-display');
-        var parsedData = {}; // Parsed graph data
-        var graphData = /*[[${graphData}]]*/ '[]';
-        var cy; // Cytoscape instance
+        var parsedData = {}; // global
+        var graphData = /*[[${graphData}]]*/ '[]'; // global graph JSON 
+        var cy; // global Cytoscape instance
         let isAnimating = false;
-        let animationSteps = []; // Animation steps for algorithms
-        let finalizedPath = []; // Finalized shortest path
+        let animationSteps = []; // 🛡️ Global to store steps for messenger
+        let finalizedPath = [];
 
 
         // ==========================================================================
         //  Initialize Graph on DOM Content Loaded
         // ==========================================================================
+        // Event listener that triggers when the document is fully loaded
         document.addEventListener('DOMContentLoaded', function () {
-
-            isAnimating = false;
-            totalCost = 0;
+            isAnimating = false;   // ✅ Reset animating flag
+            totalCost = 0;         // ✅ Reset cost
 
             if (cy) {
-                cy.destroy(); // 🔥 DESTROY any old graph before creating new one
+                cy.destroy(); // 🔥 DESTROY the old graph
             }
 
             try {
+                // Parse the graph data from JSON format
                 parsedData = JSON.parse(graphData);
 
+                // Initialize Cytoscape graph
                 cy = cytoscape({
                     container: document.getElementById('negative-cycle-graph'),
                     elements: parsedData.nodes.concat(parsedData.edges),
                     style: [
-                        // Node Styles
                         {
                             selector: 'node',
                             style: {
@@ -248,61 +249,92 @@
                                 'width': '60px',
                                 'height': '60px',
                                 'label': '',
+                                'text-valign': 'bottom',
+                                'text-halign': 'center',
+                                'text-margin-y': 10,
                                 'overlay-opacity': 0
                             }
                         },
-                        // Fountain Style
                         {
                             selector: 'node[id = "fountain"]',
                             style: {
+                                'label': '',
                                 'width': '70px',
                                 'height': '70px'
                             }
                         },
-                        // Negative Edge Styles
+                        // Negative weights
                         {
                             selector: 'edge[weight < 0]',
                             style: {
-                                'line-color': '#888',
-                                'line-style': 'dashed',
+                                'color': 'red',
                                 'label': 'data(weight)',
                                 'font-size': '12px',
+                                'text-outline-width': 2,
+                                'text-outline-color': 'white',
                                 'text-background-color': 'white',
                                 'text-background-opacity': 1,
+                                'text-background-shape': 'roundrectangle',
+                                'line-color': '#888',
+                                'width': 3,
+                                'curve-style': 'bezier',
                                 'target-arrow-shape': 'triangle',
-                                'target-arrow-color': '#888'
+                                'target-arrow-color': '#888',
+                                'mid-target-arrow-shape': 'vee',
+                                'mid-target-arrow-color': '#888',
+                                'mid-target-arrow-fill': 'hollow',
+                                'arrow-scale': 1.5,
+                                'opacity': 0.9,
+                                'line-style': 'dashed',
+                                'line-dash-pattern': [8, 4]
                             }
                         },
-                        // Positive Edge Styles
+                        // Positive weights
                         {
                             selector: 'edge[weight >= 0]',
                             style: {
-                                'line-color': '#888',
-                                'line-style': 'dashed',
+                                'color': 'green',
                                 'label': 'data(weight)',
                                 'font-size': '12px',
+                                'text-outline-width': 2,
+                                'text-outline-color': 'white',
                                 'text-background-color': 'white',
                                 'text-background-opacity': 1,
+                                'text-background-shape': 'roundrectangle',
+                                'line-color': '#888',
+                                'width': 3,
+                                'curve-style': 'bezier',
                                 'target-arrow-shape': 'triangle',
-                                'target-arrow-color': '#888'
+                                'target-arrow-color': '#888',
+                                'mid-target-arrow-shape': 'vee',
+                                'mid-target-arrow-color': '#888',
+                                'mid-target-arrow-fill': 'hollow',
+                                'arrow-scale': 1.5,
+                                'opacity': 0.9,
+                                'line-style': 'dashed',
+                                'line-dash-pattern': [8, 4]
                             }
-                        }
+                        },
                     ],
-                    layout: { name: 'cose', animate: false }
+                    layout: {
+                        name: 'cose',
+                        animate: false
+                    }
                 });
 
-                cy.fit(); // Fit graph nicely
+                cy.fit(); // zoom graph to fit nicely
 
-                // 🔄 Animate Dashed Lines
+                // Animate dashed line movement (optional visual)
                 let dashOffset = 0;
                 setInterval(() => {
                     dashOffset = (dashOffset - 1) % 100;
                     cy.edges().forEach(edge => {
-                        if (edge.style('line-style') === 'dashed') {
+                        if (edge.style('line-style') === 'dashed') {  // ⬅️ Only if still dashed
                             edge.style('line-dash-offset', dashOffset);
                         }
                     });
                 }, 60);
+
 
             } catch (e) {
                 console.error("Error initializing Cytoscape:", e);
@@ -896,24 +928,24 @@
                     },
                     body: JSON.stringify(globalResources)
                 })
-                    .then(response => {
-                        if (response.ok) {
-                            console.log('Resources updated on server');
-                        } else {
-                            console.error('Failed to update resources on server');
-                        }
-                    })
-                    .finally(() => {
-                        window.location.href = "/hello";
-                    });
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Resources updated on server');
+                    } else {
+                        console.error('Failed to update resources on server');
+                    }
+                })
+                .finally(() => {
+                    window.location.href = "/hello";
+                });
 
             })();
         }
 
-
+        // ==========================================================================
+        //  ALGORITHM CARDS CLICK EVENTS
+        // ==========================================================================
         var hasNegativeEdge = /*[[${hasNegativeEdge}]]*/ false; // only declare ONCE
-
-
         function addEdgeCostOnce(step, edge, finalizedPairs) {
             const key1 = step.from + "-" + step.to;
             const key2 = step.to + "-" + step.from;
