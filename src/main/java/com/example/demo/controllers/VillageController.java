@@ -114,8 +114,8 @@ public class VillageController {
         /**
          * Iterate through each structure node in the village.
          */
-        for (StructureNode node : village.getStructuresList()) {
-            // ========================= Iterate through each road connected to the node =========================
+        for (StructureNode node : new ArrayList<>(village.getStructuresList())) { 
+        // ========================= Iterate through each road connected to the node =========================
             /**
              * Iterate through each road connected to the node.
              */

@@ -151,7 +151,7 @@ public class GameMapGenerator {
                 case ARMOR -> "ArmorVillage";
                 case COMPOSITE -> "CompositeVillage";
             };
-            String sprite = "/assets/villages/" + name.toLowerCase() + ".png";
+            String sprite = SpriteLoader.getRandomVillageSprite();
 
             int structures = rand.nextInt(10) + 2;
             Village village = new Village("Village" + i, i, structures, x, y, sprite, type);
